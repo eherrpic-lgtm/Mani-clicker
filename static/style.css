@@ -1,0 +1,295 @@
+body {
+    font-family: 'IBM Plex Mono', monospace;
+    background-color: #EFECE4;
+    margin: 0;
+    padding: 20px;
+    padding-right: 32%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#enterprise-edition {
+    font-size: 18px;
+    color: #555;
+}
+
+#mani {
+    cursor: pointer;
+    width: 200px;
+    transition: transform 0.1s;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+}
+
+#mani:active {
+    transform: scale(0.92);
+}
+
+#left-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 65%;
+    gap: 1rem;
+}
+
+#hud {
+    width: 280px;
+    border: 1px solid #C8C4B8;
+    border-radius: 2px;
+    overflow: hidden;
+}
+#hud p {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 14px;
+    margin: 0;
+    font-size: 12px;
+    border-bottom: 1px solid #C8C4B8;
+    background: #F5F2EC;
+}
+
+#hud p:last-child { border-bottom: none; }
+
+#shop {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    left: 70%;
+    top: 0;
+    width: 30%;
+    height: 100%;
+    background-color: #F5F2EC;
+    padding: 20px;
+    border-radius: 0;
+    border-left: 0;
+    box-shadow: none;
+}
+
+#upgrade-list {
+    margin-top: 20px;
+    height: calc(100vh - 130px);
+    overflow-y: auto;
+    padding-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#titles {
+  font-family: DM Serif Display, serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+#titles h1 {
+  margin-bottom: 0;
+}
+
+#titles h2 {
+  margin-top: 0;
+}
+
+.store_upgrade {
+    background-color: #d9d9d9;
+    border-radius: 5px;
+    border-color: #000;
+    border-width: 1px;
+    border-style: solid;
+    min-height: 150px;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.store_upgrade:hover {
+    cursor: pointer;
+    background-color: #c0c0c0;
+}
+
+.upgrade-btn {
+  font-family: 'IMB Plex Mono', monospace;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 70px;
+  width: auto;
+  max-width: 90%;
+  padding: 14px 18px;
+  background: #ffffff;
+  border: 1px solid #d0d0d0;
+  border-radius: 3px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  box-sizing: border-box;
+}
+
+.upgrade-btn:hover { background: #f5f5f5; border-color: #aaaaaa; }
+.upgrade-btn:active { transform: scale(0.99); }
+.upgrade-btn.featured { border: 2px solid #378ADD; }
+.upgrade-btn.locked { opacity: 0.5; cursor: not-allowed; }
+
+.btn-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.btn-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 18px;
+}
+
+.btn-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.btn-title {
+  font-size: 15px;
+  font-weight: 500;
+  color: #111111;
+}
+
+.btn-subtitle {
+  font-size: 12px;
+  color: #666666;
+}
+
+.btn-benefit {
+    font-size: 12px;
+    color: #666666;
+}
+
+.btn-price {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  margin-left: 16px;
+}
+
+.price-main {
+  font-size: 15px;
+  font-weight: 500;
+  color: #111111;
+}
+
+.cost-label {
+  font-size: 10px;
+  color: #1e1e1e;
+}
+
+.price-label {
+  font-size: 11px;
+  color: #999999;
+}
+
+.badge {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: #E6F1FB;
+  color: #185FA5;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+
+#percentUpgrade {
+  border-color: #2D4A1E;
+  color: #7e8f7d;
+}
+
+#shop-titles {
+  display: flex;
+  align-items: baseline;
+  margin: 10px;
+  border-color: #000;
+  border-radius: 3px;
+  border-width: 1px;
+}
+
+#shop-title {
+  font-size: 20px;
+}
+
+#shop-subtitle {
+    padding-left: 10px;
+    font-size: 13px;
+    color: #888680;
+    letter-spacing: 0.08em;
+}
+
+#reset-button {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #888680;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+}
+#reset-button:hover { color: #1A1A18; }
+
+#sound-toggle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    color: #888680;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.toggle-track {
+    width: 36px;
+    height: 20px;
+    background: #C8C4B8;
+    border-radius: 99px;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.2s;
+}
+
+.toggle-track.on {
+    background: #2D4A1E;
+}
+
+.toggle-thumb {
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    transition: left 0.2s;
+}
+
+.toggle-track.on .toggle-thumb {
+    left: 19px;
+}
