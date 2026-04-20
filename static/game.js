@@ -178,7 +178,6 @@ function load() {
     vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount);
     soundsEnabled = localStorage.getItem("soundsEnabled") === "false" ? false : true;
     soundToggle.classList.toggle("on", soundsEnabled);
-    let totalVagueness = parseFloat(localStorage.getItem("totalVagueness")) || 0;
     upgrades.forEach(u => {
         if (savedCounts[u.id] !== undefined) upgradeCounts[u.id] = savedCounts[u.id];
         if (savedCosts[u.id] !== undefined) upgradeCosts[u.id] = savedCosts[u.id];
@@ -202,6 +201,7 @@ function load() {
         }
     }
     
+    totalVagueness = parseFloat(localStorage.getItem("totalVagueness")) || 0;
     updateHUD();
 }
 
@@ -291,8 +291,12 @@ function renderUpgrades() {
         btnText.appendChild(btnTitle);
         btnText.appendChild(btnBenefit);
         btn.appendChild(btnPrice);
-
-        buttonIcon.textContent = "🔧";
+        
+        if (upgradeCounts[u.id] > 0) {
+            buttonIcon.textContent = `x${upgradeCounts[u.id]}`;
+        } else {
+            buttonIcon.textContent = "🔧";
+        }
         btnTitle.textContent = u.label;
         btnBenefit.textContent = u.benefit;
         
@@ -301,7 +305,7 @@ function renderUpgrades() {
         btn.addEventListener("click", () => {
             const currentCost = Math.floor(upgradeCosts[u.id]);
             if (vagueness < currentCost) return;
-            vagueness -= cost;
+            vagueness -= currentCost;
             const upgradeCount = percentUpgradeCount;
             u.effect();
             vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount);
@@ -322,17 +326,28 @@ function renderUpgrades() {
 }
 
 function updateUpgradeButtons() {
-    document.querySelectorAll(".upgrade-btn").forEach(btn => {
-        const id = btn.dataset.id;
-        const upgrade = upgrades.find(u => u.id === id);
-        if (!upgrade) return;
-        const cost = Math.floor(upgradeCosts[upgrade.id]);
-        const costLabel = btn.querySelector(".cost-label");
-        const priceMain = btn.querySelector(".price-label");
-        costLabel.textContent = "cost";
-        priceMain.textContent = formatNumber(cost);
-        btn.classList.toggle("disabled", vagueness < cost);
-    });
+    try {
+        document.querySelectorAll(".upgrade-btn").forEach(btn => {
+            const id = btn.dataset.id;
+            const upgrade = upgrades.find(u => u.id === id);
+            if (!upgrade) return;
+            const cost = Math.floor(upgradeCosts[upgrade.id]);
+            const costLabel = btn.querySelector(".cost-label");
+            const priceMain = btn.querySelector(".price-label");
+            const buttonIcon = btn.querySelector(".btn-icon");
+            costLabel.textContent = "cost";
+            priceMain.textContent = formatNumber(cost);
+            btn.classList.toggle("disabled", vagueness < cost);
+            if (upgradeCounts[id] > 0) {
+                buttonIcon.textContent = `x${upgradeCounts[id]}`;
+            } else {
+                buttonIcon.textContent = "🔧";
+            }
+            console.log("Made it here!")
+        });
+    } catch (e) {
+        console.error("Error updating upgrade buttons:", e);
+    }
 }
 
 function updateHUD() {
@@ -352,6 +367,7 @@ function saveGame() {
         localStorage.setItem("upgradeCounts", JSON.stringify(upgradeCounts));
         localStorage.setItem("upgradeCosts", JSON.stringify(upgradeCosts));
         localStorage.setItem("percentUpgradeCount", percentUpgradeCount);
+        localStorage.setItem("totalVagueness", totalVagueness);
         console.log("Game state saved");
     } catch (e) {
         console.error("Failed to save game state:", e);

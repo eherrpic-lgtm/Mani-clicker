@@ -28,6 +28,7 @@ h1 {
     transition: transform 0.1s;
     border: 2px solid #ccc;
     border-radius: 10px;
+    animation: pulse 2s ease-in-out infinite;
 }
 
 #mani:active {
@@ -309,4 +310,9 @@ h1 {
     15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
     75%  { opacity: 1; }
     100% { opacity: 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }
