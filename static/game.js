@@ -2,6 +2,7 @@ let vagueness = 0;
 let baseVaguenessPerClick = 1;
 let vaguenessPerClick = baseVaguenessPerClick;
 let vaguenessPerSecond = 0;
+let totalVagueness = 0;
 let soundsEnabled = true;
 let percentUpgradeCount = 0;
 let percentUpgradeBaseCost = 5000;
@@ -9,6 +10,7 @@ let percentUpgradeBaseCost = 5000;
 const vaguenessDisplay = document.getElementById("vagueness-count");
 const perClickDisplay = document.getElementById("vpc");
 const perSecondDisplay = document.getElementById("vps");
+const totalVaguenessDisplay = document.getElementById("total-vagueness");
 const maniBtn = document.getElementById("mani");
 const resetBtn = document.getElementById("reset-button");
 const soundToggle = document.getElementById("sound-toggle");
@@ -176,6 +178,7 @@ function load() {
     vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount);
     soundsEnabled = localStorage.getItem("soundsEnabled") === "false" ? false : true;
     soundToggle.classList.toggle("on", soundsEnabled);
+    let totalVagueness = parseFloat(localStorage.getItem("totalVagueness")) || 0;
     upgrades.forEach(u => {
         if (savedCounts[u.id] !== undefined) upgradeCounts[u.id] = savedCounts[u.id];
         if (savedCosts[u.id] !== undefined) upgradeCosts[u.id] = savedCosts[u.id];
@@ -334,14 +337,9 @@ function updateUpgradeButtons() {
 
 function updateHUD() {
     vaguenessDisplay.textContent = formatNumber(vagueness);
-    //localStorage.setItem("vagueness", vagueness);
     perClickDisplay.textContent = formatNumber(vaguenessPerClick);
-    //localStorage.setItem("vaguenessPerClick", vaguenessPerClick);
     perSecondDisplay.textContent = formatNumber(vaguenessPerSecond);
-    //localStorage.setItem("vaguenessPerSecond", vaguenessPerSecond);
-    //localStorage.setItem("upgradeCounts", JSON.stringify(upgradeCounts));
-    //localStorage.setItem("upgradeCosts", JSON.stringify(upgradeCosts));
-    //localStorage.setItem("percentUpgradeCount", percentUpgradeCount);
+    totalVaguenessDisplay.textContent = formatNumber(totalVagueness);
     localStorage.setItem("lastSeen", Date.now());
     updatePercentUpgradeUI();
 }
@@ -374,8 +372,10 @@ setInterval(() => {
     console.log("tick", elapsed, vaguenessPerSecond);
 
     vagueness += (vaguenessPerSecond * elapsed/1000)
+    totalVagueness += (vaguenessPerSecond * elapsed/1000);
     checkMilestones();
     updateHUD();
+    console.log(totalVagueness)
 }, 1000);
 
 function getRandomInt(min, max) {
@@ -394,6 +394,7 @@ function playRandomManiSound() {
 
 maniBtn.addEventListener("click", () => {
     vagueness += vaguenessPerClick;
+    totalVagueness += vaguenessPerClick;
     playRandomManiSound();
     spawnFloatingText(`+${formatNumber(vaguenessPerClick)}`);
     checkMilestones();
