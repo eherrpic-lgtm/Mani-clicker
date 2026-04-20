@@ -190,6 +190,10 @@ h1 {
   margin-left: 16px;
 }
 
+.upgrade-btn.disabled {
+    opacity: 0.5;
+}
+
 .price-main {
   font-size: 15px;
   font-weight: 500;

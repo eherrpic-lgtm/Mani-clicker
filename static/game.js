@@ -109,6 +109,7 @@ function checkMilestones() {
             showMilestone(m.message);
         }
     });
+    renderUpgrades();
 }
 
 function showMilestone(message) {
@@ -297,7 +298,12 @@ function renderUpgrades() {
         btnTitle.textContent = u.label;
         btnBenefit.textContent = u.benefit;
         
-        btn.disabled = vagueness < cost;
+        if (vagueness < cost) {
+            btn.classList.toggle("disabled", true);
+        }
+        else {
+            btn.classList.toggle("disabled", false);
+        }
 
         btn.addEventListener("click", () => {
             if (vagueness >= cost) {
