@@ -73,6 +73,12 @@ const maniSounds = [
     {id: "whereDoesThisIdeaComeFrom", class: "store_upgrade", src: "/static/where-does-this-idea-come-from.3gp"},
 ];
 
+const preloadedSounds = maniSounds.map(s => {
+    const audio = new Audio(s.src);
+    audio.load();
+    return audio;
+})
+
 const activeSounds = [];
 const upgradeCounts = {};
 const upgradeCosts = {};
@@ -262,23 +268,10 @@ function getRandomInt(min, max) {
 
 function playRandomManiSound() {
     if (!soundsEnabled) return;
-    const randomIndex = getRandomInt(0, maniSounds.length - 1);
-    const sound = new Audio(maniSounds[randomIndex].src);
-    sound.volume = 1;
+    const randomIndex = getRandomInt(0, preloadedSounds.length - 1);
+    const sound = preloadedSounds[randomIndex];
     sound.currentTime = 0;
-    activeSounds.push(sound);
-
-    sound.addEventListener("ended", () => {
-        const idx = activeSounds.indexOf(sound);
-        if (idx !== -1) activeSounds.splice(idx, 1);
-    });
-
-    const playPromise = sound.play();
-    if (playPromise !== undefined) {
-        playPromise.catch(error => {
-            console.error("Audio play failed:", error);
-        });
-    }
+    sound.play().catch(err => console.error("Failed to play sound:", err));
 }
 
 maniBtn.addEventListener("click", () => {
