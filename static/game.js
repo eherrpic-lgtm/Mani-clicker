@@ -118,6 +118,7 @@ function load() {
         if (savedCounts[u.id] !== undefined) upgradeCounts[u.id] = savedCounts[u.id];
         if (savedCosts[u.id] !== undefined) upgradeCosts[u.id] = savedCosts[u.id];
     });
+    percentUpgradeCount = parseInt(localStorage.getItem("percentUpgradeCount")) || 0;
     updateHUD();
 }
 
