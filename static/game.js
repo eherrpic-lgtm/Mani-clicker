@@ -15,7 +15,7 @@ const lastSeen = parseInt(localStorage.getItem("lastSeen")) || null;
 if (lastSeen) {
     const secondsAway = Math.floor(Date.now() / 1000) - lastSeen;
     if (secondsAway > 10 && vaguenessPerSecond > 0) {
-        const earned = secondsAway * vaguenessPerSecond;
+        const earned = secondsAway * vaguenessPerSecond * 0.3;
         vagueness += earned;
         alert(`Welcome back! You were away for ${formatTime(secondsAway)} seconds and earned ${formatNumber(earned)} vagueness while you were gone.`);
     }
