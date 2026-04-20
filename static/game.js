@@ -149,8 +149,9 @@ document.getElementById("percentUpgrade").addEventListener("click", () => {
         vagueness -= cost;
         vaguenessPerClick *= 1.01;
         percentUpgradeCount++;
-        updatePercentUpgradeUI();
         updateHUD();
+        renderUpgrades();
+        updatePercentUpgradeUI();
     }
 });
 
@@ -244,7 +245,6 @@ function updateHUD() {
     localStorage.setItem("upgradeCosts", JSON.stringify(upgradeCosts));
     localStorage.setItem("percentUpgradeCount", percentUpgradeCount);
     renderUpgrades();
-    updatePercentUpgradeUI();
 }
 
 setInterval(updatevaguenessPerSecond, 1000);
