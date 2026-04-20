@@ -242,6 +242,7 @@ function updateHUD() {
     localStorage.setItem("vaguenessPerSecond", vaguenessPerSecond);
     localStorage.setItem("upgradeCounts", JSON.stringify(upgradeCounts));
     localStorage.setItem("upgradeCosts", JSON.stringify(upgradeCosts));
+    localStorage.setItem("percentUpgradeCount", percentUpgradeCount);
     renderUpgrades();
     updatePercentUpgradeUI();
 }
@@ -283,8 +284,29 @@ function playRandomManiSound() {
 maniBtn.addEventListener("click", () => {
     vagueness += vaguenessPerClick;
     playRandomManiSound();
+    spawnFloatingText(`+${formatNumber(vaguenessPerClick)}`);
     updateHUD();
 })
+
+function spawnFloatingText(text) {
+    const el = document.createElement("div");
+    el.textContent = text;
+    el.style.cssText = `
+        position: absolute;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 13px;
+        font-weight: 500;
+        color: #2D4A1E:
+        pointer-events: none;
+        user-select: none;
+        animation: floatUp 1s ease-out forwards;
+    `;
+    const rect = maniBtn.getBoundingClientRect();
+    el.style.left = (rect.left + Math.random() * rect.width) + "px";
+    el.style.top = (rect.top + window.scrollY - 10) + "px";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1000);
+}
 
 updateHUD();
 renderUpgrades();

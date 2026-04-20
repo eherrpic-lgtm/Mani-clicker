@@ -1,4 +1,5 @@
 body {
+    position: relative;
     font-family: 'IBM Plex Mono', monospace;
     background-color: #EFECE4;
     margin: 0;
@@ -292,4 +293,9 @@ h1 {
 
 .toggle-track.on .toggle-thumb {
     left: 19px;
+}
+
+@keyframes floatUp {
+  0% {opcacity: 1; transform: translateY(0);}
+  100% {opacity: 0; transform: translateY(-50px);}
 }
