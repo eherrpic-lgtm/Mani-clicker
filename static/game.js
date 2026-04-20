@@ -240,6 +240,7 @@ document.getElementById("percentUpgrade").addEventListener("click", () => {
         renderUpgrades();
         updatePercentUpgradeUI();
     }
+    localStorage.setItem("percentUpgradeCount", percentUpgradeCount);
 });
 
 function updatePercentUpgradeUI() {
@@ -340,6 +341,7 @@ function updateHUD() {
     localStorage.setItem("upgradeCosts", JSON.stringify(upgradeCosts));
     localStorage.setItem("percentUpgradeCount", percentUpgradeCount);
     localStorage.setItem("lastSeen", Date.now());
+    updatePercentUpgradeUI();
 }
 
 setInterval(updatevaguenessPerSecond, 1000);
