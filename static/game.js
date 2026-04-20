@@ -83,6 +83,21 @@ const maniSounds = [
     {id: "whereDoesThisIdeaComeFrom", class: "store_upgrade", src: "/static/where-does-this-idea-come-from.3gp"},
 ];
 
+const tickerMessages = [
+    { minVagueness: 0, messages: [
+        "Somewhere, a memo is going unread.",
+        "A strategy is being workshopped. No one knows what it means.",
+    ]},
+    { minVagueness: 1000000, messages: [
+        "Sources close to the situation are unable to clarify.",
+        "The roadmap has been updated. It is vaguer than before.",
+    ]},
+    { minVagueness: 1000000000, messages: [
+        "Regulators are monitoring the vagueness. Vaguely.",
+        "Mani has entered the chat. He has questions. No answers.",
+    ]},
+];
+
 const milestones = [
     { threshold: 1000, message: "1,000 vagueness achieved. A promising lack of clarity." },
     { threshold: 1000000, message: "1 Million vagueness. Mani would be proud. Maybe." },
@@ -93,6 +108,7 @@ const milestones = [
     { threshold: 1e21, message: "1 Sextillion vagueness. Regulators are concerned but cannot articulate why." },
     { threshold: 1e24, message: "1 Septillion vagueness. The universe has filed a complaint. It was too vague to process." },
 ];
+
 const reachedMilestones = new Set();
 
 function checkMilestones() {
@@ -144,6 +160,30 @@ upgrades.forEach(u => {
     upgradeCounts[u.id] = 0;
     upgradeCosts[u.id] = u.baseCost;
 })
+
+function randomTickerMessage() {
+    const textBox = document.getElementById("tickerBox");
+    
+    let tier;
+    if (totalVagueness >= 1000000000) {
+        tier = tickerMessages[2].messages;
+    } else if (totalVagueness >= 1000000) {
+        tier = tickerMessages[1].messages;
+    } else {
+        tier = tickerMessages[0].messages;
+    }
+    
+    const message = tier[getRandomInt(0, tier.length - 1)];
+    
+    textBox.style.opacity = 0;
+    setTimeout(() => {
+        textBox.textContent = message;
+        textBox.style.opacity = 1;
+    }, 500);
+}
+
+randomTickerMessage();
+setInterval(randomTickerMessage, 6000)
 
 function formatNumber(n) {
     const suffixes = [
