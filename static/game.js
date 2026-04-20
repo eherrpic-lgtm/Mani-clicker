@@ -186,6 +186,11 @@ function load() {
         if (savedCounts[u.id] !== undefined) upgradeCounts[u.id] = savedCounts[u.id];
         if (savedCosts[u.id] !== undefined) upgradeCosts[u.id] = savedCosts[u.id];
     });
+    const savedUnlocked = JSON.parse(localStorage.getItem("unlockedUpgrades") || "[]");
+    savedUnlocked.forEach(id => {
+        const u = upgrades.find(u => u.id === id);
+        if (u) u.unlocked = true;
+    })
     percentUpgradeCount = parseInt(localStorage.getItem("percentUpgradeCount")) || 0;
     const savedMilestones = JSON.parse(localStorage.getItem("reachedMilestones") || "[]");
     savedMilestones.forEach(t => reachedMilestones.add(t));
@@ -311,6 +316,9 @@ function renderUpgrades() {
         if (u.unlocked || vagueness >= u.baseCost / 1.25) {
             list.appendChild(btn);
             u.unlocked = true;
+            localStorage.setItem("unlockedUpgrades", JSON.stringify(
+                upgrades.filter(u => u.unlocked).map(u => u.id)
+            ))
         }
     })
 }
