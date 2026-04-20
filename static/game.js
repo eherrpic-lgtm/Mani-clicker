@@ -17,7 +17,7 @@ if (lastSeen) {
     if (secondsAway > 10 && vaguenessPerSecond > 0) {
         const earned = secondsAway * vaguenessPerSecond;
         vagueness += earned;
-        alert(`Welcome back! You were away for ${formamtTime(secondsAway)} seconds and earned ${formatNumber(earned)} vagueness while you were gone.`);
+        alert(`Welcome back! You were away for ${formatTime(secondsAway)} seconds and earned ${formatNumber(earned)} vagueness while you were gone.`);
     }
 } 
 
@@ -89,6 +89,52 @@ const maniSounds = [
     {id: "whereDoesThisIdeaComeFrom", class: "store_upgrade", src: "/static/where-does-this-idea-come-from.3gp"},
 ];
 
+const milestones = [
+    { threshold: 1000, message: "1,000 vagueness achieved. A promising lack of clarity." },
+    { threshold: 1000000, message: "1 Million vagueness. Mani would be proud. Maybe." },
+    { threshold: 1000000000, message: "1 Billion vagueness. The board has been notified. They have questions. No one will answer them." },
+    { threshold: 1000000000000, message: "1 Trillion vagueness. You have transcended the org chart." },
+    { threshold: 1000000000000000, message: "1 Quadrillion vagueness. The concept of clarity no longer applies to you." },
+    { threshold: 1e18, message: "1 Quintillion vagueness. Mani himself has left the building." },
+    { threshold: 1e21, message: "1 Sextillion vagueness. Regulators are concerned but cannot articulate why." },
+    { threshold: 1e24, message: "1 Septillion vagueness. The universe has filed a complaint. It was too vague to process." },
+];
+const reachedMilestones = new Set();
+
+function checkMilestones() {
+    milestones.forEach(m => {
+        if (vagueness >= m.threshold && !reachedMilestones.has(m.threshold)) {
+            reachedMilestones.add(m.threshold);
+            localStorage.setItem("reachedMilestones", JSON.stringify([...reachedMilestones]));
+            showMilestone(m.message);
+        }
+    });
+}
+
+function showMilestone(message) {
+    const el = document.createElement("div");
+    el.textContent = message;
+    el.style.cssText = `
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #2D4A1E;
+        color: #D4ECC0;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 12px;
+        padding: 12px 20px;
+        border-radius: 2px;
+        max-width: 400px;
+        text-align: center;
+        z-index: 9999;
+        animation: fadeInOut 4s ease forwards;
+    `;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+}
+
+
 const preloadedSounds = maniSounds.map(s => {
     const audio = new Audio(s.src);
     audio.load();
@@ -141,6 +187,19 @@ function load() {
         if (savedCosts[u.id] !== undefined) upgradeCosts[u.id] = savedCosts[u.id];
     });
     percentUpgradeCount = parseInt(localStorage.getItem("percentUpgradeCount")) || 0;
+    const savedMilestones = JSON.parse(localStorage.getItem("reachedMilestones") || "[]");
+    savedMilestones.forEach(t => reachedMilestones.add(t));
+
+    const lastSeen = parseInt(localStorage.getItem("lastSeen")) || null;
+    if (lastSeen) {
+        const secondsAway = Math.floor((Date.now() - lastSeen) / 1000);
+        if (secondsAway > 10 && vaguenessPerSecond > 0) {
+            const earned = secondsAway * vaguenessPerSecond;
+            vagueness += earned;
+            alert(`Welcome back! You were away for ${formatTime(secondsAway)} and earned ${formatNumber(earned)} vagueness.`);
+        }
+    }
+
     updateHUD();
 }
 
@@ -266,7 +325,6 @@ function updateHUD() {
     localStorage.setItem("upgradeCounts", JSON.stringify(upgradeCounts));
     localStorage.setItem("upgradeCosts", JSON.stringify(upgradeCosts));
     localStorage.setItem("percentUpgradeCount", percentUpgradeCount);
-    renderUpgrades();
     localStorage.setItem("lastSeen", Date.now());
 }
 
@@ -274,6 +332,7 @@ setInterval(updatevaguenessPerSecond, 1000);
 
 function updatevaguenessPerSecond() {
     vagueness += vaguenessPerSecond;
+    checkMilestones();
     updateHUD();
 }
 
@@ -295,6 +354,7 @@ maniBtn.addEventListener("click", () => {
     vagueness += vaguenessPerClick;
     playRandomManiSound();
     spawnFloatingText(`+${formatNumber(vaguenessPerClick)}`);
+    checkMilestones();
     updateHUD();
 })
 
@@ -306,7 +366,7 @@ function spawnFloatingText(text) {
         font-family: 'IBM Plex Mono', monospace;
         font-size: 13px;
         font-weight: 500;
-        color: #2D4A1E:
+        color: #2D4A1E;
         pointer-events: none;
         user-select: none;
         animation: floatUp 1s ease-out forwards;
