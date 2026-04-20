@@ -1,5 +1,6 @@
 let vagueness = 0;
-let vaguenessPerClick = 1;
+let baseVaguenessPerClick = 1;
+let vaguenessPerClick = baseVaguenessPerClick;
 let vaguenessPerSecond = 0;
 let soundsEnabled = true;
 let percentUpgradeCount = 0;
@@ -11,15 +12,6 @@ const perSecondDisplay = document.getElementById("vps");
 const maniBtn = document.getElementById("mani");
 const resetBtn = document.getElementById("reset-button");
 const soundToggle = document.getElementById("sound-toggle");
-const lastSeen = parseInt(localStorage.getItem("lastSeen")) || null;
-if (lastSeen) {
-    const secondsAway = Math.floor(Date.now() / 1000) - lastSeen;
-    if (secondsAway > 10 && vaguenessPerSecond > 0) {
-        const earned = secondsAway * vaguenessPerSecond * 0.3;
-        vagueness += earned;
-        alert(`Welcome back! You were away for ${formatTime(secondsAway)} seconds and earned ${formatNumber(earned)} vagueness while you were gone.`);
-    }
-} 
 
 function formatTime(seconds) {
     if (seconds < 60) return `${seconds}s`;
@@ -28,55 +20,55 @@ function formatTime(seconds) {
 }
 
 let upgrades = [
-    { id: "u1", label: "Vague notion", benefit: "+1/click", baseCost: 50, effect: () => {vaguenessPerClick += 1; }, unlocked: true },
+    { id: "u1", label: "Vague notion", benefit: "+1/click", baseCost: 50, effect: () => {baseVaguenessPerClick += 1; }, unlocked: true },
     { id: "u2", label: "Ambiguous memo", benefit: "+1/sec", baseCost: 100, effect: () => {vaguenessPerSecond += 1; }, unlocked: false },
-    { id: "u3", label: "Unclear strategy", benefit: "+3/click", baseCost: 500, effect: () => {vaguenessPerClick += 3; }, unlocked: false },
+    { id: "u3", label: "Unclear strategy", benefit: "+3/click", baseCost: 500, effect: () => {baseVaguenessPerClick += 3; }, unlocked: false },
     { id: "u4", label: "Vague roadmap", benefit: "+3/sec", baseCost: 800, effect: () => {vaguenessPerSecond += 3; }, unlocked: false },
-    { id: "u5", label: "Mystery meeting", benefit: "+8/click", baseCost: 4000, effect: () => {vaguenessPerClick += 8; }, unlocked: false },
+    { id: "u5", label: "Mystery meeting", benefit: "+8/click", baseCost: 4000, effect: () => {baseVaguenessPerClick += 8; }, unlocked: false },
     { id: "u6", label: "Consultant", benefit: "+10/sec", baseCost: 6000, effect: () => {vaguenessPerSecond += 10; }, unlocked: false },
-    { id: "u7", label: "Nebulous vision", benefit: "+25/click", baseCost: 30000, effect: () => {vaguenessPerClick += 25; }, unlocked: false },
+    { id: "u7", label: "Nebulous vision", benefit: "+25/click", baseCost: 30000, effect: () => {baseVaguenessPerClick += 25; }, unlocked: false },
     { id: "u8", label: "Vague enterprise", benefit: "+50/sec", baseCost: 50000, effect: () => {vaguenessPerSecond += 50; }, unlocked: false },
-    { id: "u9", label: "Abstract synergy", benefit: "+100/click", baseCost: 250000, effect: () => {vaguenessPerClick += 100; }, unlocked: false },
+    { id: "u9", label: "Abstract synergy", benefit: "+100/click", baseCost: 250000, effect: () => {baseVaguenessPerClick += 100; }, unlocked: false },
     { id: "u10", label: "Mani himself", benefit: "+500/sec", baseCost: 1000000, effect: () => {vaguenessPerSecond += 500; }, unlocked: false },
-    { id: "u11", label: "Fuzzy objective", benefit: "+250/click", baseCost: 500000, effect: () => {vaguenessPerClick += 250; }, unlocked: false },
+    { id: "u11", label: "Fuzzy objective", benefit: "+250/click", baseCost: 500000, effect: () => {baseVaguenessPerClick += 250; }, unlocked: false },
     { id: "u12", label: "Indeterminate forecast", benefit: "+1K/sec", baseCost: 2000000, effect: () => {vaguenessPerSecond += 1000; }, unlocked: false },
-    { id: "u13", label: "Cryptic directive", benefit: "+750/click", baseCost: 5000000, effect: () => {vaguenessPerClick += 750; }, unlocked: false },
+    { id: "u13", label: "Cryptic directive", benefit: "+750/click", baseCost: 5000000, effect: () => {baseVaguenessPerClick += 750; }, unlocked: false },
     { id: "u14", label: "Shapeless initiative", benefit: "+3K/sec", baseCost: 12000000, effect: () => {vaguenessPerSecond += 3000; }, unlocked: false },
-    { id: "u15", label: "Undisclosed pivot", benefit: "+2K/click", baseCost: 40000000, effect: () => {vaguenessPerClick += 2000; }, unlocked: false },
+    { id: "u15", label: "Undisclosed pivot", benefit: "+2K/click", baseCost: 40000000, effect: () => {baseVaguenessPerClick += 2000; }, unlocked: false },
     { id: "u16", label: "Vague disruption", benefit: "+10K/sec", baseCost: 100000000, effect: () => {vaguenessPerSecond += 10000; }, unlocked: false },
-    { id: "u17", label: "Elusive paradigm", benefit: "+7.5K/click", baseCost: 350000000, effect: () => {vaguenessPerClick += 7500; }, unlocked: false },
+    { id: "u17", label: "Elusive paradigm", benefit: "+7.5K/click", baseCost: 350000000, effect: () => {baseVaguenessPerClick += 7500; }, unlocked: false },
     { id: "u18", label: "Murky ecosystem", benefit: "+40K/sec", baseCost: 1000000000, effect: () => {vaguenessPerSecond += 40000; }, unlocked: false },
-    { id: "u19", label: "Ambiguous singularity", benefit: "+25K/click", baseCost: 5000000000, effect: () => {vaguenessPerClick += 25000; }, unlocked: false },
+    { id: "u19", label: "Ambiguous singularity", benefit: "+25K/click", baseCost: 5000000000, effect: () => {baseVaguenessPerClick += 25000; }, unlocked: false },
     { id: "u20", label: "The vibe", benefit: "+200K/sec", baseCost: 20000000000, effect: () => {vaguenessPerSecond += 200000; }, unlocked: false },
-    { id: "u21", label: "Borderline coherent", benefit: "+75K/click", baseCost: 60000000000, effect: () => {vaguenessPerClick += 75000; }, unlocked: false },
+    { id: "u21", label: "Borderline coherent", benefit: "+75K/click", baseCost: 60000000000, effect: () => {baseVaguenessPerClick += 75000; }, unlocked: false },
     { id: "u22", label: "Phantom KPI", benefit: "+750K/sec", baseCost: 200000000000, effect: () => {vaguenessPerSecond += 750000; }, unlocked: false },
-    { id: "u23", label: "Implied consensus", benefit: "+250K/click", baseCost: 600000000000, effect: () => {vaguenessPerClick += 250000; }, unlocked: false },
+    { id: "u23", label: "Implied consensus", benefit: "+250K/click", baseCost: 600000000000, effect: () => {baseVaguenessPerClick += 250000; }, unlocked: false },
     { id: "u24", label: "Hollow framework", benefit: "+3M/sec", baseCost: 2000000000000, effect: () => {vaguenessPerSecond += 3000000; }, unlocked: false },
-    { id: "u25", label: "Unspoken alignment", benefit: "+800K/click", baseCost: 7000000000000, effect: () => {vaguenessPerClick += 800000; }, unlocked: false },
+    { id: "u25", label: "Unspoken alignment", benefit: "+800K/click", baseCost: 7000000000000, effect: () => {baseVaguenessPerClick += 800000; }, unlocked: false },
     { id: "u26", label: "Ghostwritten whitepaper", benefit: "+12M/sec", baseCost: 25000000000000, effect: () => {vaguenessPerSecond += 12000000; }, unlocked: false },
-    { id: "u27", label: "Deliberate ambiguity", benefit: "+3M/click", baseCost: 80000000000000, effect: () => {vaguenessPerClick += 3000000; }, unlocked: false },
+    { id: "u27", label: "Deliberate ambiguity", benefit: "+3M/click", baseCost: 80000000000000, effect: () => {baseVaguenessPerClick += 3000000; }, unlocked: false },
     { id: "u28", label: "Vague legislation", benefit: "+50M/sec", baseCost: 300000000000000, effect: () => {vaguenessPerSecond += 50000000; }, unlocked: false },
-    { id: "u29", label: "Redacted report", benefit: "+10M/click", baseCost: 900000000000000, effect: () => {vaguenessPerClick += 10000000; }, unlocked: false },
+    { id: "u29", label: "Redacted report", benefit: "+10M/click", baseCost: 900000000000000, effect: () => {baseVaguenessPerClick += 10000000; }, unlocked: false },
     { id: "u30", label: "Undefined terms & conditions", benefit: "+200M/sec", baseCost: 3000000000000000, effect: () => {vaguenessPerSecond += 200000000; }, unlocked: false },
-    { id: "u31", label: "Classified briefing", benefit: "+40M/click", baseCost: 10000000000000000, effect: () => {vaguenessPerClick += 40000000; }, unlocked: false },
+    { id: "u31", label: "Classified briefing", benefit: "+40M/click", baseCost: 10000000000000000, effect: () => {baseVaguenessPerClick += 40000000; }, unlocked: false },
     { id: "u32", label: "Theoretical department", benefit: "+800M/sec", baseCost: 40000000000000000, effect: () => {vaguenessPerSecond += 800000000; }, unlocked: false },
-    { id: "u33", label: "Speculative org chart", benefit: "+150M/click", baseCost: 150000000000000000, effect: () => {vaguenessPerClick += 150000000; }, unlocked: false },
+    { id: "u33", label: "Speculative org chart", benefit: "+150M/click", baseCost: 150000000000000000, effect: () => {baseVaguenessPerClick += 150000000; }, unlocked: false },
     { id: "u34", label: "Cosmic misunderstanding", benefit: "+3B/sec", baseCost: 600000000000000000, effect: () => {vaguenessPerSecond += 3000000000; }, unlocked: false },
-    { id: "u35", label: "The fog itself", benefit: "+1B/click", baseCost: 2000000000000000000, effect: () => {vaguenessPerClick += 1000000000; }, unlocked: false },
+    { id: "u35", label: "The fog itself", benefit: "+1B/click", baseCost: 2000000000000000000, effect: () => {baseVaguenessPerClick += 1000000000; }, unlocked: false },
     { id: "u36", label: "Someone's dream about work", benefit: "+2B/sec", baseCost: 8000000000000000000, effect: () => {vaguenessPerSecond += 2000000000; }, unlocked: false },
-    { id: "u37", label: "A feeling in the room", benefit: "+5B/click", baseCost: 30000000000000000000, effect: () => {vaguenessPerClick += 5000000000; }, unlocked: false },
+    { id: "u37", label: "A feeling in the room", benefit: "+5B/click", baseCost: 30000000000000000000, effect: () => {baseVaguenessPerClick += 5000000000; }, unlocked: false },
     { id: "u38", label: "Vibes-based governance", benefit: "+8B/sec", baseCost: 100000000000000000000, effect: () => {vaguenessPerSecond += 8000000000; }, unlocked: false },
-    { id: "u39", label: "The concept of maybe", benefit: "+15B/click", baseCost: 400000000000000000000, effect: () => {vaguenessPerClick += 15000000000; }, unlocked: false },
+    { id: "u39", label: "The concept of maybe", benefit: "+15B/click", baseCost: 400000000000000000000, effect: () => {baseVaguenessPerClick += 15000000000; }, unlocked: false },
     { id: "u40", label: "Prophecy written in fog", benefit: "+30B/sec", baseCost: 1500000000000000000000, effect: () => {vaguenessPerSecond += 30000000000; }, unlocked: false },
-    { id: "u41", label: "God's unread notification", benefit: "+60B/click", baseCost: 6000000000000000000000, effect: () => {vaguenessPerClick += 60000000000; }, unlocked: false },
+    { id: "u41", label: "God's unread notification", benefit: "+60B/click", baseCost: 6000000000000000000000, effect: () => {baseVaguenessPerClick += 60000000000; }, unlocked: false },
     { id: "u42", label: "The universe shrugging", benefit: "+120B/sec", baseCost: 25000000000000000000000, effect: () => {vaguenessPerSecond += 120000000000; }, unlocked: false },
-    { id: "u43", label: "Schrödinger's deliverable", benefit: "+250B/click", baseCost: 100000000000000000000000, effect: () => {vaguenessPerClick += 250000000000; }, unlocked: false },
+    { id: "u43", label: "Schrödinger's deliverable", benefit: "+250B/click", baseCost: 100000000000000000000000, effect: () => {baseVaguenessPerClick += 250000000000; }, unlocked: false },
     { id: "u44", label: "A rumour whispered to a black hole", benefit: "+500B/sec", baseCost: 400000000000000000000000, effect: () => {vaguenessPerSecond += 500000000000; }, unlocked: false },
-    { id: "u45", label: "Primordial vagueness", benefit: "+1T/click", baseCost: 2000000000000000000000000, effect: () => {vaguenessPerClick += 1000000000000; }, unlocked: false },
+    { id: "u45", label: "Primordial vagueness", benefit: "+1T/click", baseCost: 2000000000000000000000000, effect: () => {baseVaguenessPerClick += 1000000000000; }, unlocked: false },
     { id: "u46", label: "The shadow of an idea's ghost", benefit: "+2T/sec", baseCost: 8000000000000000000000000, effect: () => {vaguenessPerSecond += 2000000000000; }, unlocked: false },
-    { id: "u47", label: "Interdimensional maybe", benefit: "+5T/click", baseCost: 35000000000000000000000000, effect: () => {vaguenessPerClick += 5000000000000; }, unlocked: false },
+    { id: "u47", label: "Interdimensional maybe", benefit: "+5T/click", baseCost: 35000000000000000000000000, effect: () => {baseVaguenessPerClick += 5000000000000; }, unlocked: false },
     { id: "u48", label: "The part before the big bang", benefit: "+10T/sec", baseCost: 150000000000000000000000000, effect: () => {vaguenessPerSecond += 10000000000000; }, unlocked: false },
-    { id: "u49", label: "Vagueness achieving sentience", benefit: "+25T/click", baseCost: 700000000000000000000000000, effect: () => {vaguenessPerClick += 25000000000000; }, unlocked: false },
+    { id: "u49", label: "Vagueness achieving sentience", benefit: "+25T/click", baseCost: 700000000000000000000000000, effect: () => {baseVaguenessPerClick += 25000000000000; }, unlocked: false },
     { id: "u50", label: "The answer to everything, probably", benefit: "+100T/sec", baseCost: 5000000000000000000000000000, effect: () => {vaguenessPerSecond += 100000000000000; }, unlocked: false },
 ];
 
@@ -109,7 +101,7 @@ function checkMilestones() {
             showMilestone(m.message);
         }
     });
-    renderUpgrades();
+    updateUpgradeButtons();
 }
 
 function showMilestone(message) {
@@ -177,10 +169,11 @@ function formatNumber(n) {
 
 function load() {
     vagueness = parseFloat(localStorage.getItem("vagueness")) || 0;
-    vaguenessPerClick = parseFloat(localStorage.getItem("vaguenessPerClick")) || 1;
+    baseVaguenessPerClick = parseFloat(localStorage.getItem("baseVaguenessPerClick")) || 1;
     vaguenessPerSecond = parseFloat(localStorage.getItem("vaguenessPerSecond")) || 0;
     const savedCounts = JSON.parse(localStorage.getItem("upgradeCounts") || "{}");
     const savedCosts = JSON.parse(localStorage.getItem("upgradeCosts") || "{}");
+    vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount);
     soundsEnabled = localStorage.getItem("soundsEnabled") === "false" ? false : true;
     soundToggle.classList.toggle("on", soundsEnabled);
     upgrades.forEach(u => {
@@ -195,7 +188,7 @@ function load() {
     percentUpgradeCount = parseInt(localStorage.getItem("percentUpgradeCount")) || 0;
     const savedMilestones = JSON.parse(localStorage.getItem("reachedMilestones") || "[]");
     savedMilestones.forEach(t => reachedMilestones.add(t));
-
+    
     const lastSeen = parseInt(localStorage.getItem("lastSeen")) || null;
     if (lastSeen) {
         const secondsAway = Math.floor((Date.now() - lastSeen) / 1000);
@@ -205,7 +198,7 @@ function load() {
             alert(`Welcome back! You were away for ${formatTime(secondsAway)} and earned ${formatNumber(earned)} vagueness.`);
         }
     }
-
+    
     updateHUD();
 }
 
@@ -234,10 +227,10 @@ document.getElementById("percentUpgrade").addEventListener("click", () => {
     const cost = getPercentUpgradeCost();
     if (vagueness >= cost) {
         vagueness -= cost;
-        vaguenessPerClick *= 1.01;
+        vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount);
         percentUpgradeCount++;
         updateHUD();
-        renderUpgrades();
+        updateUpgradeButtons();
         updatePercentUpgradeUI();
     }
     localStorage.setItem("percentUpgradeCount", percentUpgradeCount);
@@ -258,6 +251,7 @@ function renderUpgrades() {
 
         const btn = document.createElement("button")
         btn.className = "upgrade-btn";
+        btn.dataset.id = u.id;
 
         const leftDiv = document.createElement("div");
         leftDiv.classList.add("btn-left");
@@ -299,25 +293,19 @@ function renderUpgrades() {
         btnTitle.textContent = u.label;
         btnBenefit.textContent = u.benefit;
         
-        if (vagueness < cost) {
-            btn.classList.toggle("disabled", true);
-        }
-        else {
-            btn.classList.toggle("disabled", false);
-        }
+        btn.classList.toggle("disabled", vagueness < cost);
 
         btn.addEventListener("click", () => {
-            if (vagueness >= cost) {
-                vagueness -= cost;
-                const upgradeCount = percentUpgradeCount;
-                vaguenessPerClick = vaguenessPerClick / Math.pow(1.01, upgradeCount);
-                u.effect();
-                vaguenessPerClick = vaguenessPerClick * Math.pow(1.01, upgradeCount);
-                upgradeCounts[u.id]++;
-                upgradeCosts[u.id] = Math.floor(u.baseCost * Math.pow(1.15, upgradeCounts[u.id]));
-                updateHUD();
-                renderUpgrades();
-            }
+            const currentCost = Math.floor(upgradeCosts[u.id]);
+            if (vagueness < currentCost) return;
+            vagueness -= cost;
+            const upgradeCount = percentUpgradeCount;
+            u.effect();
+            vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount);
+            upgradeCounts[u.id]++;
+            upgradeCosts[u.id] = Math.floor(u.baseCost * Math.pow(1.15, upgradeCounts[u.id]));
+            updateHUD();
+            updateUpgradeButtons();
         });
 
         if (u.unlocked || vagueness >= u.baseCost / 1.25) {
@@ -330,27 +318,65 @@ function renderUpgrades() {
     })
 }
 
+function updateUpgradeButtons() {
+    document.querySelectorAll(".upgrade-btn").forEach(btn => {
+        const id = btn.dataset.id;
+        const upgrade = upgrades.find(u => u.id === id);
+        if (!upgrade) return;
+        const cost = Math.floor(upgradeCosts[upgrade.id]);
+        const costLabel = btn.querySelector(".cost-label");
+        const priceMain = btn.querySelector(".price-label");
+        costLabel.textContent = "cost";
+        priceMain.textContent = formatNumber(cost);
+        btn.classList.toggle("disabled", vagueness < cost);
+    });
+}
+
 function updateHUD() {
     vaguenessDisplay.textContent = formatNumber(vagueness);
-    localStorage.setItem("vagueness", vagueness);
+    //localStorage.setItem("vagueness", vagueness);
     perClickDisplay.textContent = formatNumber(vaguenessPerClick);
-    localStorage.setItem("vaguenessPerClick", vaguenessPerClick);
+    //localStorage.setItem("vaguenessPerClick", vaguenessPerClick);
     perSecondDisplay.textContent = formatNumber(vaguenessPerSecond);
-    localStorage.setItem("vaguenessPerSecond", vaguenessPerSecond);
-    localStorage.setItem("upgradeCounts", JSON.stringify(upgradeCounts));
-    localStorage.setItem("upgradeCosts", JSON.stringify(upgradeCosts));
-    localStorage.setItem("percentUpgradeCount", percentUpgradeCount);
+    //localStorage.setItem("vaguenessPerSecond", vaguenessPerSecond);
+    //localStorage.setItem("upgradeCounts", JSON.stringify(upgradeCounts));
+    //localStorage.setItem("upgradeCosts", JSON.stringify(upgradeCosts));
+    //localStorage.setItem("percentUpgradeCount", percentUpgradeCount);
     localStorage.setItem("lastSeen", Date.now());
     updatePercentUpgradeUI();
 }
 
-setInterval(updatevaguenessPerSecond, 1000);
+function saveGame() {
+    try {
+        localStorage.setItem("vagueness", vagueness);
+        localStorage.setItem("baseVaguenessPerClick", baseVaguenessPerClick);
+        localStorage.setItem("vaguenessPerSecond", vaguenessPerSecond);
+        localStorage.setItem("upgradeCounts", JSON.stringify(upgradeCounts));
+        localStorage.setItem("upgradeCosts", JSON.stringify(upgradeCosts));
+        localStorage.setItem("percentUpgradeCount", percentUpgradeCount);
+        console.log("Game state saved");
+    } catch (e) {
+        console.error("Failed to save game state:", e);
+    }
+}
 
-function updatevaguenessPerSecond() {
-    vagueness += vaguenessPerSecond;
+setInterval(saveGame, 30000);
+
+window.addEventListener("beforeunload", saveGame);
+
+let lastTick = Date.now();
+
+setInterval(() => {
+    const now = Date.now();
+    const elapsed = now - lastTick;
+    lastTick = now;
+
+    console.log("tick", elapsed, vaguenessPerSecond);
+
+    vagueness += (vaguenessPerSecond * elapsed/1000)
     checkMilestones();
     updateHUD();
-}
+}, 1000);
 
 function getRandomInt(min, max) {
     min = Math.ceil(min);
