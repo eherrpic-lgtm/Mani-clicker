@@ -11,6 +11,22 @@ const perSecondDisplay = document.getElementById("vps");
 const maniBtn = document.getElementById("mani");
 const resetBtn = document.getElementById("reset-button");
 const soundToggle = document.getElementById("sound-toggle");
+const lastSeen = parseInt(localStorage.getItem("lastSeen")) || null;
+if (lastSeen) {
+    const secondsAway = Math.floor(Date.now() / 1000) - lastSeen;
+    if (secondsAway > 10 && vaguenessPerSecond > 0) {
+        const earned = secondsAway * vaguenessPerSecond;
+        vagueness += earned;
+        alert(`Welcome back! You were away for ${formamtTime(secondsAway)} seconds and earned ${formatNumber(earned)} vagueness while you were gone.`);
+    }
+} 
+
+function formatTime(seconds) {
+    if (seconds < 60) return `${seconds}s`;
+    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+    return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
+}
+
 let upgrades = [
     { id: "u1", label: "Vague notion", benefit: "+1/click", baseCost: 50, effect: () => {vaguenessPerClick += 1; }, unlocked: true },
     { id: "u2", label: "Ambiguous memo", benefit: "+1/sec", baseCost: 100, effect: () => {vaguenessPerSecond += 1; }, unlocked: false },
@@ -251,6 +267,7 @@ function updateHUD() {
     localStorage.setItem("upgradeCosts", JSON.stringify(upgradeCosts));
     localStorage.setItem("percentUpgradeCount", percentUpgradeCount);
     renderUpgrades();
+    localStorage.setItem("lastSeen", Date.now());
 }
 
 setInterval(updatevaguenessPerSecond, 1000);
