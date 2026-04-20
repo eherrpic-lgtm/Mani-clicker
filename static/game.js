@@ -175,9 +175,9 @@ function formatNumber(n) {
 }
 
 function load() {
-    vagueness = parseInt(localStorage.getItem("vagueness")) || 0;
-    vaguenessPerClick = parseInt(localStorage.getItem("vaguenessPerClick")) || 1;
-    vaguenessPerSecond = parseInt(localStorage.getItem("vaguenessPerSecond")) || 0;
+    vagueness = parseFloat(localStorage.getItem("vagueness")) || 0;
+    vaguenessPerClick = parseFloat(localStorage.getItem("vaguenessPerClick")) || 1;
+    vaguenessPerSecond = parseFloat(localStorage.getItem("vaguenessPerSecond")) || 0;
     const savedCounts = JSON.parse(localStorage.getItem("upgradeCounts") || "{}");
     const savedCosts = JSON.parse(localStorage.getItem("upgradeCosts") || "{}");
     soundsEnabled = localStorage.getItem("soundsEnabled") === "false" ? false : true;
