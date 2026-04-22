@@ -6,6 +6,8 @@ let totalVagueness = 0;
 let soundsEnabled = true;
 let percentUpgradeCount = 0;
 let percentUpgradeBaseCost = 5000;
+let eventClickMultiplier = 1;
+let eventSecondMultiplier = 1;
 
 const vaguenessDisplay = document.getElementById("vagueness-count");
 const perClickDisplay = document.getElementById("vpc");
@@ -150,7 +152,7 @@ const tickerMessages = [
         "The fog has elected a representative. The representative is also fog.",
         "Reality has filed a formal complaint. It was too vague to process.",
     ]},
-];
+];  
 
 const milestones = [
     { threshold: 1000, message: "1,000 vagueness achieved. A promising lack of clarity." },
@@ -163,7 +165,50 @@ const milestones = [
     { threshold: 1e24, message: "1 Septillion vagueness. The universe has filed a complaint. It was too vague to process." },
 ];
 
+const randomEvents = [
+    { id: "e1", message: "Mani is in a meeting. Clicks are worth double.", duration: 30, effect: () => {eventClickMultiplier = 2}, undo: () => {eventClickMultiplier = 1} },
+    { id: "e2", message: "Someone has forwarded your email to the entire company. Clicks ×3 for 20 seconds.", duration: 20, effect: () => {eventClickMultiplier = 3}, undo: () => {eventClickMultiplier = 1} },
+    { id: "e3", message: "A motivational speaker has entered the building. Clicks ×1.5.", duration: 45, effect: () => {eventClickMultiplier = 1.5}, undo: () => {eventClickMultiplier = 1} },
+    { id: "e4", message: "The office coffee machine has been fixed. Clicks ×4 briefly.", duration: 15, effect: () => {eventClickMultiplier = 4}, undo: () => {eventClickMultiplier = 1} },
+    { id: "e5", message: "Mani has left for lunch early. Unsupervised clicking ×2.5.", duration: 25, effect: () => {eventClickMultiplier = 2.5}, undo: () => {eventClickMultiplier = 1} },
+    
+    { id: "e6", message: "A vague initiative has been auto-approved. Passive income ×2 for 30 seconds.", duration: 30, effect: () => {eventSecondMultiplier = 2}, undo: () => {eventSecondMultiplier = 1} },
+    { id: "e7", message: "The quarterly report has been deliberately obscured. Passive income ×3.", duration: 20, effect: () => {eventSecondMultiplier = 3}, undo: () => {eventSecondMultiplier = 1} },
+    { id: "e8", message: "A consultant has submitted their invoice early. Passive income ×1.5.", duration: 60, effect: () => {eventSecondMultiplier = 1.5}, undo: () => {eventSecondMultiplier = 1} },
+    { id: "e9", message: "Synergies have been detected in the wild. Passive income ×2 briefly.", duration: 20, effect: () => {eventSecondMultiplier = 2}, undo: () => {eventSecondMultiplier = 1} },
+    { id: "e10", message: "The org chart has been restructured. Again. Passive income ×4 for 15 seconds.", duration: 15, effect: () => {eventSecondMultiplier = 4}, undo: () => {eventSecondMultiplier = 1} },
+    
+    { id: "e11", message: "Mani has gone off-script in a board presentation. Everything ×2.", duration: 20, effect: () => { eventClickMultiplier = 2; eventSecondMultiplier = 2; }, undo: () => { eventClickMultiplier = 1; eventSecondMultiplier = 1; } },
+    { id: "e12", message: "A fire drill has been called. No one has left the building. Everything ×1.5.", duration: 40, effect: () => { eventClickMultiplier = 1.5; eventSecondMultiplier = 1.5; }, undo: () => { eventClickMultiplier = 1; eventSecondMultiplier = 1; } },
+    { id: "e13", message: "The strategy deck has gone missing. Pure chaos. Everything ×3.", duration: 15, effect: () => { eventClickMultiplier = 3; eventSecondMultiplier = 3; }, undo: () => { eventClickMultiplier = 1; eventSecondMultiplier = 1; } },
+    { id: "e14", message: "It is someone's birthday in the office. Productivity is abolished. Everything ×2.", duration: 30, effect: () => { eventClickMultiplier = 2; eventSecondMultiplier = 2; }, undo: () => { eventClickMultiplier = 1; eventSecondMultiplier = 1; } },
+    { id: "e15", message: "A team offsite has been announced. No one is doing any work. Everything ×2.5.", duration: 25, effect: () => { eventClickMultiplier = 2.5; eventSecondMultiplier = 2.5; }, undo: () => { eventClickMultiplier = 1; eventSecondMultiplier = 1; } },
+    
+    { id: "e16", message: "Mani has requested clarification. Clicks halved for 20 seconds.", duration: 20, effect: () => {eventClickMultiplier = 0.5}, undo: () => {eventClickMultiplier = 1} },
+    { id: "e17", message: "A mandatory compliance training has been scheduled. Passive income halved.", duration: 30, effect: () => {eventSecondMultiplier = 0.5}, undo: () => {eventSecondMultiplier = 1} },
+    { id: "e18", message: "Someone has introduced a clarity framework. Everything slows down.", duration: 25, effect: () => { eventClickMultiplier = 0.5; eventSecondMultiplier = 0.5; }, undo: () => { eventClickMultiplier = 1; eventSecondMultiplier = 1; } },
+    { id: "e19", message: "The VPN is down. Passive income reduced for 20 seconds.", duration: 20, effect: () => {eventSecondMultiplier = 0.75}, undo: () => {eventSecondMultiplier = 1} },
+    { id: "e20", message: "A town hall has been called. All vagueness production paused briefly.", duration: 5, effect: () => { eventClickMultiplier = 0; eventSecondMultiplier = 0; }, undo: () => { eventClickMultiplier = 1; eventSecondMultiplier = 1; } },
+];
+
 const reachedMilestones = new Set();
+
+function doRandomEvent() {
+    let index = getRandomInt(0, randomEvents.length - 1);
+    const event = randomEvents[index];
+    event.effect();
+    updateHUD();
+    showMilestone(event.message);
+    setTimeout(() => {
+        event.undo();
+        updateHUD();
+        showMilestone(`The event "${event.message}" has ended.`);
+    }, event.duration * 1000);
+    
+}
+
+doRandomEvent();
+setInterval(doRandomEvent, getRandomInt(30000, 120000)); // Every 0.5-2 minutes
 
 function checkMilestones() {
     milestones.forEach(m => {
@@ -269,7 +314,7 @@ function load() {
     vaguenessPerSecond = parseFloat(localStorage.getItem("vaguenessPerSecond")) || 0;
     const savedCounts = JSON.parse(localStorage.getItem("upgradeCounts") || "{}");
     const savedCosts = JSON.parse(localStorage.getItem("upgradeCosts") || "{}");
-    vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount);
+    vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount) * eventClickMultiplier;
     soundsEnabled = localStorage.getItem("soundsEnabled") === "false" ? false : true;
     soundToggle.classList.toggle("on", soundsEnabled);
     upgrades.forEach(u => {
@@ -324,7 +369,7 @@ document.getElementById("percentUpgrade").addEventListener("click", () => {
     const cost = getPercentUpgradeCost();
     if (vagueness >= cost) {
         vagueness -= cost;
-        vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount);
+        vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount) * eventClickMultiplier;
         percentUpgradeCount++;
         updateHUD();
         updateUpgradeButtons();
@@ -339,9 +384,25 @@ function updatePercentUpgradeUI() {
     document.getElementById("percentUpgrade").style.opacity = vagueness >= cost ? "1" : "0.5";
 }
 
+function sortUpgrades(upgrades) {
+    upgrades.sort((a,b) => {
+        const costA = upgradeCosts[a.id];
+        const costB = upgradeCosts[b.id];
+        return costA - costB
+    })
+
+    return upgrades
+}
+
+function randomEvent() {
+    const event = Math.random();
+}
+
 function renderUpgrades() {
     const list = document.getElementById("upgrade-list");
     list.innerHTML = ""
+
+    upgrades = sortUpgrades(upgrades);
 
     upgrades.forEach(u => {
         const cost = Math.floor(upgradeCosts[u.id])
@@ -402,7 +463,7 @@ function renderUpgrades() {
             vagueness -= currentCost;
             const upgradeCount = percentUpgradeCount;
             u.effect();
-            vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount);
+            vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount) * eventClickMultiplier;
             upgradeCounts[u.id]++;
             upgradeCosts[u.id] = Math.floor(u.baseCost * Math.pow(1.15, upgradeCounts[u.id]));
             updateHUD();
@@ -481,8 +542,8 @@ setInterval(() => {
 
     console.log("tick", elapsed, vaguenessPerSecond);
 
-    vagueness += (vaguenessPerSecond * elapsed/1000)
-    totalVagueness += (vaguenessPerSecond * elapsed/1000);
+    vagueness += (vaguenessPerSecond * eventSecondMultiplier * elapsed/1000)
+    totalVagueness += (vaguenessPerSecond * eventSecondMultiplier * elapsed/1000);
     checkMilestones();
     updateHUD();
     console.log(totalVagueness)
