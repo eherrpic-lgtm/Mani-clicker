@@ -8,6 +8,10 @@ let percentUpgradeCount = 0;
 let percentUpgradeBaseCost = 5000;
 let eventClickMultiplier = 1;
 let eventSecondMultiplier = 1;
+let sort = false;
+let timeSinceLastClick = 0;
+let lastClickTime = 0;
+let clickStreak = 0;
 
 const vaguenessDisplay = document.getElementById("vagueness-count");
 const perClickDisplay = document.getElementById("vpc");
@@ -207,8 +211,13 @@ function doRandomEvent() {
     
 }
 
-doRandomEvent();
-setInterval(doRandomEvent, getRandomInt(30000, 120000)); // Every 0.5-2 minutes
+function scheduleNextEvent() {
+    setTimeout(() => {
+        doRandomEvent();
+        scheduleNextEvent();
+    }, getRandomInt(30000, 120000));
+}
+scheduleNextEvent();
 
 function checkMilestones() {
     milestones.forEach(m => {
@@ -402,7 +411,8 @@ function renderUpgrades() {
     const list = document.getElementById("upgrade-list");
     list.innerHTML = ""
 
-    upgrades = sortUpgrades(upgrades);
+    upgrades = sort ? sortUpgrades(upgrades) : upgrades;
+    //upgrades = sortUpgrades(upgrades);
 
     upgrades.forEach(u => {
         const cost = Math.floor(upgradeCosts[u.id])
@@ -498,7 +508,6 @@ function updateUpgradeButtons() {
             } else {
                 buttonIcon.textContent = "🔧";
             }
-            console.log("Made it here!")
         });
     } catch (e) {
         console.error("Error updating upgrade buttons:", e);
@@ -531,7 +540,11 @@ function saveGame() {
 
 setInterval(saveGame, 30000);
 
-window.addEventListener("beforeunload", saveGame);
+window.addEventListener("beforeunload", () => {
+    saveGame();
+    eventClickMultiplier = 1;
+    eventSecondMultiplier = 1;
+});
 
 let lastTick = Date.now();
 
@@ -540,13 +553,10 @@ setInterval(() => {
     const elapsed = now - lastTick;
     lastTick = now;
 
-    console.log("tick", elapsed, vaguenessPerSecond);
-
     vagueness += (vaguenessPerSecond * eventSecondMultiplier * elapsed/1000)
     totalVagueness += (vaguenessPerSecond * eventSecondMultiplier * elapsed/1000);
     checkMilestones();
     updateHUD();
-    console.log(totalVagueness)
 }, 1000);
 
 function getRandomInt(min, max) {
@@ -559,26 +569,59 @@ function playRandomManiSound() {
     if (!soundsEnabled) return;
     const randomIndex = getRandomInt(0, preloadedSounds.length - 1);
     const sound = preloadedSounds[randomIndex];
-    sound.currentTime = 0;
     sound.play().catch(err => console.error("Failed to play sound:", err));
 }
 
 maniBtn.addEventListener("click", () => {
-    vagueness += vaguenessPerClick;
+    const now = Date.now();
+    lastClickTime = now;
+    timeSinceLastClick = 0;
+    
+    if (clickStreak < 150) {
+        clickStreak++;
+    } else {
+        clickStreak = 150;
+    }
+
+    console.log(clickStreak);
+    const clickVagueness = vaguenessPerClick * (1 + clickStreak / 1000)
+    vagueness += clickVagueness;
     totalVagueness += vaguenessPerClick;
     playRandomManiSound();
-    spawnFloatingText(`+${formatNumber(vaguenessPerClick)}`);
+    spawnFloatingText(`+${formatNumber(clickVagueness)}`, "medium");
+    if (clickStreak > 1) {
+        spawnFloatingText(`x${clickStreak}`, "large")
+    }
     checkMilestones();
     updateHUD();
 })
 
-function spawnFloatingText(text) {
+setInterval(() => {
+    if (Date.now()-lastClickTime > 1000) {
+        clickStreak = 0;
+    }
+}, 100);
+
+function spawnFloatingText(text, size) {
+    let fontsize = 0;
+
+    if (size = "large") {
+        fontsize = 26;
+    } else if (size = "medium") {
+        fontsize = 13;
+    } else if (size = "small") {
+        fontsize = 8;
+    } else {
+        console.error("Invalid size when calling spawnFloatingText()")
+        return;
+    }
+
     const el = document.createElement("div");
     el.textContent = text;
     el.style.cssText = `
         position: absolute;
         font-family: 'IBM Plex Mono', monospace;
-        font-size: 13px;
+        font-size: ${fontsize}px;
         font-weight: 500;
         color: #2D4A1E;
         pointer-events: none;
