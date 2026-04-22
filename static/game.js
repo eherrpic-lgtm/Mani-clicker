@@ -572,7 +572,7 @@ function playRandomManiSound() {
     sound.play().catch(err => console.error("Failed to play sound:", err));
 }
 
-maniBtn.addEventListener("click", () => {
+maniBtn.addEventListener("click", (e) => {
     const now = Date.now();
     lastClickTime = now;
     timeSinceLastClick = 0;
@@ -583,14 +583,13 @@ maniBtn.addEventListener("click", () => {
         clickStreak = 150;
     }
 
-    console.log(clickStreak);
     const clickVagueness = vaguenessPerClick * (1 + clickStreak / 1000)
     vagueness += clickVagueness;
     totalVagueness += vaguenessPerClick;
     playRandomManiSound();
-    spawnFloatingText(`+${formatNumber(clickVagueness)}`, "medium");
+    spawnFloatingText(`+${formatNumber(clickVagueness)}`, 13, e, "top", 500, false);
     if (clickStreak > 1) {
-        spawnFloatingText(`x${clickStreak}`, "large")
+        spawnFloatingText(`x${clickStreak}`, 30, e, "cursor", 600, true)
     }
     checkMilestones();
     updateHUD();
@@ -602,19 +601,7 @@ setInterval(() => {
     }
 }, 100);
 
-function spawnFloatingText(text, size) {
-    let fontsize = 0;
-
-    if (size = "large") {
-        fontsize = 26;
-    } else if (size = "medium") {
-        fontsize = 13;
-    } else if (size = "small") {
-        fontsize = 8;
-    } else {
-        console.error("Invalid size when calling spawnFloatingText()")
-        return;
-    }
+function spawnFloatingText(text, fontsize, e, position, weight, spin) {
 
     const el = document.createElement("div");
     el.textContent = text;
@@ -622,15 +609,36 @@ function spawnFloatingText(text, size) {
         position: absolute;
         font-family: 'IBM Plex Mono', monospace;
         font-size: ${fontsize}px;
-        font-weight: 500;
+        font-weight: ${weight};
         color: #2D4A1E;
         pointer-events: none;
         user-select: none;
         animation: floatUp 1s ease-out forwards;
     `;
+    if (spin) {
+        let spinDirection = getRandomInt(1,2)
+        spinDirection == 1 ? el.style.animation = "spinLeft 0.8s ease-in-out forwards;" : el.style.animation = "spinRight 0.8s ease-in-out forwards;";
+    }
+    
     const rect = maniBtn.getBoundingClientRect();
-    el.style.left = (rect.left + Math.random() * rect.width) + "px";
-    el.style.top = (rect.top + window.scrollY - 10) + "px";
+    if (position == "middle") {
+        el.style.left = (rect.left + Math.random() * (rect.width / 2) + rect.width / 4) + "px";    
+    } else {
+        el.style.left = (rect.left + Math.random() * rect.width) + "px";
+    }
+    if (position == "top") {
+        el.style.top = (rect.top + window.scrollY - 10) + "px";
+    } else if (position == "middle") {
+        el.style.top = (rect.top + rect.height / 2 + window.scrollY - 10) + "px";
+    } else if (position == "bottom") {
+        el.style.top = (rect.bottom + window.scrollY - 10) + "px";
+    } else if (position == "cursor") {
+        el.style.left = (e.clientX + window.scrollX + getRandomInt(-10, 10)) + "px";
+        el.style.top = (e.clientY + window.scrollY + getRandomInt(-10, 10)) + "px";
+    } else {
+        console.error("Invalid y position when calling spawnFloatingText()")
+    }
+
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 1000);
 }
