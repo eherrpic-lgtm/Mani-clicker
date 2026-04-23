@@ -568,9 +568,26 @@ function getRandomInt(min, max) {
 
 function playRandomManiSound() {
     if (!soundsEnabled) return;
+
     const randomIndex = getRandomInt(0, preloadedSounds.length - 1);
-    const sound = preloadedSounds[randomIndex];
-    sound.play().catch(err => console.error("Failed to play sound:", err));
+    const originalSound = preloadedSounds[randomIndex];
+
+    const soundClone = originalSound.cloneNode();
+
+    const randomSpeed = getRandomInt(60, 200) / 100;
+
+    console.log(randomSpeed)
+
+    soundClone.playbackRate = randomSpeed;
+
+    soundClone.preservePitch = false;
+
+    soundClone.play().catch(err => console.error("Playback failed: ", err));
+
+    soundClone.onended = function() {
+        soundClone.remove();
+        console.log("Finished playing sound");
+    };
 }
 
 maniBtn.addEventListener("click", (e) => {
@@ -616,10 +633,8 @@ function spawnFloatingText(text, fontsize, e, position, weight, spin) {
     `;
 
     if (spin) {
-        console.log("spin is true, applying spin animation");
         let spinDirection = getRandomInt(1,2);
         const animName = spinDirection == 1 ? "spinLeft" : "spinRight";
-        console.log("animation name:", animName);
         el.style.animation = `${animName} 0.8s ease-in-out forwards`;
     }
     
