@@ -615,9 +615,13 @@ function spawnFloatingText(text, fontsize, e, position, weight, spin) {
         user-select: none;
         animation: floatUp 1s ease-out forwards;
     `;
+
     if (spin) {
-        let spinDirection = getRandomInt(1,2)
-        spinDirection == 1 ? el.style.animation = "spinLeft 0.8s ease-in-out forwards;" : el.style.animation = "spinRight 0.8s ease-in-out forwards;";
+        console.log("spin is true, applying spin animation");
+        let spinDirection = getRandomInt(1,2);
+        const animName = spinDirection == 1 ? "spinLeft" : "spinRight";
+        console.log("animation name:", animName);
+        el.style.animation = `${animName} 0.8s ease-in-out forwards`;
     }
     
     const rect = maniBtn.getBoundingClientRect();
