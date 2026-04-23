@@ -12,6 +12,7 @@ let sort = false;
 let timeSinceLastClick = 0;
 let lastClickTime = 0;
 let clickStreak = 0;
+let longestStreak = 0;
 
 const vaguenessDisplay = document.getElementById("vagueness-count");
 const perClickDisplay = document.getElementById("vpc");
@@ -28,7 +29,7 @@ function formatTime(seconds) {
 }
 
 let upgrades = [
-    { id: "u1", label: "Vague notion", benefit: "+1/click", baseCost: 50, effect: () => {baseVaguenessPerClick += 1; }, unlocked: true },
+    { id: "u1", label: "Vague notion", benefit: "+1/click", baseCost: 30, effect: () => {baseVaguenessPerClick += 1; }, unlocked: true },
     { id: "u2", label: "Ambiguous memo", benefit: "+1/sec", baseCost: 100, effect: () => {vaguenessPerSecond += 1; }, unlocked: false },
     { id: "u3", label: "Unclear strategy", benefit: "+3/click", baseCost: 500, effect: () => {baseVaguenessPerClick += 3; }, unlocked: false },
     { id: "u4", label: "Vague roadmap", benefit: "+3/sec", baseCost: 800, effect: () => {vaguenessPerSecond += 3; }, unlocked: false },
@@ -597,6 +598,8 @@ maniBtn.addEventListener("click", (e) => {
 
 setInterval(() => {
     if (Date.now()-lastClickTime > 1000) {
+        longestStreak = clickStreak;
+        console.log(longestStreak)
         clickStreak = 0;
     }
 }, 100);
