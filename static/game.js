@@ -584,7 +584,7 @@ maniBtn.addEventListener("click", (e) => {
         clickStreak = 150;
     }
 
-    const clickVagueness = vaguenessPerClick * (1 + clickStreak / 1000)
+    const clickVagueness = vaguenessPerClick * (1 + clickStreak / 100)
     vagueness += clickVagueness;
     totalVagueness += vaguenessPerClick;
     playRandomManiSound();
@@ -648,6 +648,11 @@ function spawnFloatingText(text, fontsize, e, position, weight, spin) {
 
     document.body.appendChild(el);
     setTimeout(() => el.remove(), 1000);
+}
+
+function addVagueness(amount) {
+    vagueness += amount;
+    totalVagueness += amount;
 }
 
 updateHUD();
