@@ -16,6 +16,10 @@
             </div>
     
             <div id = "hud">
+                <div id = "factory-name-row">
+                    <span id = "factory-name"></span>
+                    <button id = "rename-btn" onclick = "renameFactory()">rename</button>
+                </div>
                 <p>Vagueness: <span id = "vagueness-count">0</span></p>
                 <p>Vagueness per click: <span id = "vpc">1</span></p>
                 <p>Vagueness per second: <span id = "vps">0</span></p>
@@ -34,6 +38,11 @@
                 <div id="sound-toggle" class="toggle-track">
                     <div class="toggle-thumb"></div>
                 </div>
+            </div>
+
+            <div id = "leaderboard-panel">
+                <div class = "lb-title">VAGUENESS LEADERBOARD</div>
+                <ul id = "leaderboard-list"></ul>
             </div>
         </div>
 

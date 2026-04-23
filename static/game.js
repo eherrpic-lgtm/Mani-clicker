@@ -13,6 +13,7 @@ let timeSinceLastClick = 0;
 let lastClickTime = 0;
 let clickStreak = 0;
 let longestStreak = 0;
+let factoryName = localStorage.getItem("factoryName") || "";
 
 const vaguenessDisplay = document.getElementById("vagueness-count");
 const perClickDisplay = document.getElementById("vpc");
@@ -195,6 +196,90 @@ const randomEvents = [
     { id: "e19", message: "The VPN is down. Passive income reduced for 20 seconds.", duration: 20, effect: () => {eventSecondMultiplier = 0.75}, undo: () => {eventSecondMultiplier = 1} },
     { id: "e20", message: "A town hall has been called. All vagueness production paused briefly.", duration: 5, effect: () => { eventClickMultiplier = 0; eventSecondMultiplier = 0; }, undo: () => { eventClickMultiplier = 1; eventSecondMultiplier = 1; } },
 ];
+
+const defaultNames = [
+    "Vague Ventures Ltd.", "Ambiguity Corp.", "The Fog Institute",
+    "Undefined Solutions", "Pending Confirmation LLC", "The Unclear Agency",
+    "Misty Deliverables Inc.", "Circling Back GmbH", "To Be Determined Ltd.",
+    "The Alignment Bureau", "Fuzzy Logic Enterprises", "Undisclosed Holdings",
+    "Strategic Fog Partners", "The Synergy Collective", "Murky Outcomes Inc.",
+    "Vague Horizons Ltd.", "The Framework Factory", "Implied Consensus Group",
+    "Nebulous Systems Corp.", "The Pivot Department", "Hollow Metrics Ltd.",
+    "The Stakeholder Void", "Adjacent Thinking Co.", "The Bandwidth Concern",
+    "Theoretical Org LLC", "The North Star Division", "Unspecified Ventures",
+    "The Ongoing Situation", "Phantom KPI Partners", "Vague Disruption Inc.",
+    "The Offsite Bureau", "Misaligned Objectives Co.", "The Tiger Team Trust",
+    "Cascading Ambiguity Ltd.", "The Deliverable Concern", "Pre-Vague Solutions",
+    "The Looping Initiative", "Unclear Value Prop Inc.", "The Horizon Group",
+    "Workshopped & Unresolved"
+];
+
+function initFactoryName() {
+    if (!factoryName) {
+        const name = prompt("Name your vagueness factory:");
+        if (name && name.trim()) {
+            factoryName = name.trim().slice(0, 64);
+        } else {
+            factoryName = defaultNames[getRandomInt(0, defaultNames.length() - 1)];
+        }
+        localStorage.setItem("factoryName", factoryName);
+    }
+    document.getElementById("factory-name").textContent = factoryName;
+}
+
+function renameFactory() {
+    const name = prompt("Rename your factory: ", factoryName);
+    if (name && name.trim()) {
+        factoryName = name.trim().slice(0, 64);
+        localStorage.setItem("factoryName", factoryName)
+        document.getElementById("factory-name").textContent = factoryName;
+    }
+}
+
+// -- Leaderboard ---------------------------------------------------
+
+async function submitScore() {
+    if (!factoryName) return;
+    try {
+        await fetch("api/score", {
+            method: "POST",
+            headers: {"Content-Type": "application/json" },
+            body: JSON.stringify({factoryName, totalVagueness})
+        });
+    } catch (e) {
+        console.warn("Score submit failed: ", e);
+    }
+}
+
+async function fetchLeaderBoard() {
+    try {
+        const res = await fetch("/api/leaderboard");
+        const data = await res.json();
+        renderLeaderboard(data);
+    } catch (e) {
+        console.warn("Leaderboard fetch failed: ", e)
+    }
+}
+
+function renderLeaderboard (entries) {
+    const list = document.getElementById("leaderboard-list");
+    if (!list) return;
+    list.innerHTML = "";
+    if (entries.length === 0) {
+        list.innerHTML = `<li class = "lb-empty">No entries yet. Be the first.</li>`;
+        return;
+    }
+    entries.forEach((entry, i) => {
+        const li = document.createElement("li");
+        li.className = "lb-entry";
+        li.innerHTML = `
+            <span class = "lb-rank">#${i + 1}</span>
+            <span class = "lb-name">${entry.factoryName}</span>
+            <span class = "lb-score">${formatNumber(entry.totalVagueness)}</span>
+        `;
+        list.appendChild(li);
+    })
+}
 
 const reachedMilestones = new Set();
 
@@ -534,6 +619,7 @@ function saveGame() {
         localStorage.setItem("percentUpgradeCount", percentUpgradeCount);
         localStorage.setItem("totalVagueness", totalVagueness);
         console.log("Game state saved");
+        submitScore();
     } catch (e) {
         console.error("Failed to save game state:", e);
     }
@@ -543,6 +629,8 @@ setInterval(saveGame, 30000);
 
 window.addEventListener("beforeunload", () => {
     saveGame();
+    submitScore();
+    fetchLeaderBoard();
     eventClickMultiplier = 1;
     eventSecondMultiplier = 1;
 });
@@ -668,3 +756,6 @@ function addVagueness(amount) {
 
 updateHUD();
 renderUpgrades();
+initFactoryName();
+fetchLeaderBoard();
+setInterval(fetchLeaderBoard, 60000);
