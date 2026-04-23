@@ -578,13 +578,9 @@ maniBtn.addEventListener("click", (e) => {
     lastClickTime = now;
     timeSinceLastClick = 0;
     
-    if (clickStreak < 150) {
-        clickStreak++;
-    } else {
-        clickStreak = 150;
-    }
+    clickStreak++;
 
-    const clickVagueness = vaguenessPerClick * (1 + clickStreak / 100)
+    const clickVagueness = vaguenessPerClick * (1 + (clickStreak > 150 ? 150 : clickSteak) / 100)
     vagueness += clickVagueness;
     totalVagueness += vaguenessPerClick;
     playRandomManiSound();
