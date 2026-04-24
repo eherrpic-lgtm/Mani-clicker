@@ -754,6 +754,12 @@ function addVagueness(amount) {
     totalVagueness += amount;
 }
 
+function multiplyVagueness(amount) {
+    difference = vagueness * amount - amount;
+    vagueness += difference;
+    totalVagueness += difference;
+}
+
 updateHUD();
 renderUpgrades();
 initFactoryName();
