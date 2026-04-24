@@ -149,8 +149,8 @@ def admin_message():
     if not is_admin():
         return jsonify({"error": "Unauthorized"})
     data = request.get_json()
-    target = request.get_data("factoryName")
-    message = request.get_data("message", "").strip()[:256]
+    target = data.get("factoryName")
+    message = data.get("message", "").strip()[:256]
     if not message:
         return jsonify({"error": "No message"}), 400
     if target == "__all__":
@@ -158,7 +158,7 @@ def admin_message():
         for p in players:
             p.pending_message = message
     else:
-        player = PlayerSession.query.filter_by("factory_name" == target).first()
+        player = PlayerSession.query.filter_by(factory_name = target).first()
         if player:
             player.pending_message = message
     db.session.commit()
@@ -170,7 +170,7 @@ def admin_override():
         return jsonify({"error": "Unauthorized"})
     data = request.get_json()
     name = data.get("factoryName")
-    player = PlayerSession.query.filter_by("factory_name" == name).first()
+    player = PlayerSession.query.filter_by(factory_name = name).first()
     if not player:
         return jsonify({"error": "Player not found"}), 404
     if "vaguenessPerClick" in data:
@@ -180,7 +180,7 @@ def admin_override():
     if "vagueness" in data:
         player.override_vagueness = float(data["vagueness"])
     db.session.commit()
-    return jsonify({"ok", True})
+    return jsonify({"ok": True})
 
 if __name__ == '__main__':
     app.run(host = "0.0.0.0", port = int(os.environ.get("PORT", 5000)))
