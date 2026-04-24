@@ -220,7 +220,7 @@ function initFactoryName() {
         if (name && name.trim()) {
             factoryName = name.trim().slice(0, 64);
         } else {
-            factoryName = defaultNames[getRandomInt(0, defaultNames.length() - 1)];
+            factoryName = defaultNames[getRandomInt(0, defaultNames.length - 1)];
         }
         localStorage.setItem("factoryName", factoryName);
     }
@@ -291,7 +291,7 @@ function renderLeaderboard (entries) {
 async function pollAdmin() {
     if (!factoryName) return;
     try {
-        const res = await fetch("/api/update", { 
+        const res = await fetch("/api/poll", { 
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ 

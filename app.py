@@ -100,15 +100,15 @@ def poll():
 
     if player.override_vpc is not None:
         response["override_vpc"] = player.override_vpc
-        player.override_vpc = False
+        player.override_vpc = None
 
     if player.override_vps is not None:
         response["override_vps"] = player.override_vps
-        player.override_vps = False
+        player.override_vps = None
 
     if player.override_vagueness is not None:
         response["override_vagueness"] = player.override_vagueness
-        player.override_vagueness = False
+        player.override_vagueness = None
 
     db.session.commit()
     return jsonify(response)
