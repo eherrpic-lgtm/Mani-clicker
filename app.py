@@ -148,19 +148,23 @@ def admin_players():
 def admin_message():
     if not is_admin():
         return jsonify({"error": "Unauthorized"})
+    
     data = request.get_json()
-    target = data.get("factoryName")
-    message = data.get("message", "").strip()[:256]
+    target = data.get("factoryName") 
+    message = data.get("message", "").strip()[:256] 
+    
     if not message:
         return jsonify({"error": "No message"}), 400
+        
     if target == "__all__":
         players = PlayerSession.query.all()
         for p in players:
             p.pending_message = message
     else:
-        player = PlayerSession.query.filter_by(factory_name = target).first()
+        player = PlayerSession.query.filter_by(factory_name=target).first() 
         if player:
             player.pending_message = message
+            
     db.session.commit()
     return jsonify({"ok": True})
 
@@ -168,17 +172,21 @@ def admin_message():
 def admin_override():
     if not is_admin():
         return jsonify({"error": "Unauthorized"})
+        
     data = request.get_json()
     name = data.get("factoryName")
-    player = PlayerSession.query.filter_by(factory_name = name).first()
+    
+    player = PlayerSession.query.filter_by(factory_name=name).first() 
     if not player:
         return jsonify({"error": "Player not found"}), 404
+        
     if "vaguenessPerClick" in data:
         player.override_vpc = float(data["vaguenessPerClick"])
     if "vaguenessPerSecond" in data:
         player.override_vps = float(data["vaguenessPerSecond"])
     if "vagueness" in data:
         player.override_vagueness = float(data["vagueness"])
+        
     db.session.commit()
     return jsonify({"ok": True})
 

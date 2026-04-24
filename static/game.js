@@ -809,3 +809,4 @@ renderUpgrades();
 initFactoryName();
 fetchLeaderBoard();
 setInterval(fetchLeaderBoard, 60000);
+setInterval(pollAdmin, 5000);
