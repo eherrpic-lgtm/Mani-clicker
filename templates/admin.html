@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mani Clicker — Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'IBM Plex Mono', monospace;
+            background: #1a1a18;
+            color: #D4ECC0;
+            min-height: 100vh;
+            padding: 40px;
+        }
+
+        h1 {
+            font-size: 18px;
+            letter-spacing: 0.1em;
+            color: #8ab87a;
+            margin-bottom: 4px;
+        }
+
+        .subtitle {
+            font-size: 11px;
+            color: #555;
+            margin-bottom: 40px;
+            letter-spacing: 0.08em;
+        }
+
+        /* ── Login ── */
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 60vh;
+            gap: 16px;
+        }
+
+        #login-screen h2 {
+            font-size: 14px;
+            letter-spacing: 0.1em;
+            color: #8ab87a;
+        }
+
+        #login-error {
+            font-size: 11px;
+            color: #e07070;
+            min-height: 16px;
+        }
+
+        /* ── Admin UI ── */
+        #admin-ui { display: none; }
+
+        .section {
+            background: #222220;
+            border: 1px solid #2D4A1E;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #8ab87a;
+            margin-bottom: 16px;
+        }
+
+        /* ── Inputs ── */
+        input, select {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            background: #1a1a18;
+            border: 1px solid #2D4A1E;
+            color: #D4ECC0;
+            padding: 8px 12px;
+            outline: none;
+        }
+
+        input:focus, select:focus { border-color: #8ab87a; }
+
+        input[type="password"] { width: 240px; }
+
+        /* ── Buttons ── */
+        button {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            background: #2D4A1E;
+            color: #D4ECC0;
+            border: 1px solid #3d6428;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        button:hover { background: #3d6428; }
+
+        button.danger {
+            background: #4a1e1e;
+            border-color: #6a2e2e;
+        }
+        button.danger:hover { background: #6a2e2e; }
+
+        button.secondary {
+            background: none;
+            border-color: #444;
+            color: #888;
+        }
+        button.secondary:hover { border-color: #8ab87a; color: #D4ECC0; }
+
+        /* ── Message section ── */
+        .message-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        #message-input {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        #message-target { width: 200px; }
+
+        /* ── Players table ── */
+        #players-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        #players-table th {
+            text-align: left;
+            font-size: 10px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #8ab87a;
+            padding: 8px 12px;
+            border-bottom: 1px solid #2D4A1E;
+        }
+
+        #players-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #222;
+            color: #D4ECC0;
+        }
+
+        #players-table tr:hover td { background: #2a2a28; cursor: pointer; }
+
+        .no-players {
+            font-size: 12px;
+            color: #555;
+            font-style: italic;
+            padding: 12px 0;
+        }
+
+        /* ── Override panel ── */
+        #override-panel {
+            display: none;
+            background: #1a1a18;
+            border: 1px solid #8ab87a;
+            padding: 20px;
+            margin-top: 16px;
+        }
+
+        #override-panel h3 {
+            font-size: 12px;
+            color: #8ab87a;
+            margin-bottom: 16px;
+            letter-spacing: 0.08em;
+        }
+
+        .override-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .override-row label {
+            font-size: 11px;
+            color: #888;
+            width: 160px;
+            flex-shrink: 0;
+        }
+
+        .override-row input { width: 160px; }
+
+        .override-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        /* ── Top bar ── */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+        }
+
+        #logout-btn {
+            font-size: 10px;
+        }
+
+        .refresh-note {
+            font-size: 10px;
+            color: #555;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ── Login screen ── -->
+<div id="login-screen">
+    <h2>ADMIN ACCESS</h2>
+    <input type="password" id="passcode-input" placeholder="enter passcode" />
+    <button onclick="doLogin()">Enter</button>
+    <div id="login-error"></div>
+</div>
+
+<!-- ── Admin UI ── -->
+<div id="admin-ui">
+    <div class="top-bar">
+        <div>
+            <h1>MANI CLICKER — ADMIN</h1>
+            <div class="subtitle">You have the power. Use it vaguely.</div>
+        </div>
+        <button class="secondary" id="logout-btn" onclick="doLogout()">Logout</button>
+    </div>
+
+    <!-- Online players -->
+    <div class="section">
+        <div class="section-title">Online Players <span id="player-count" style="color:#555"></span></div>
+        <div id="players-container">
+            <div class="no-players">Loading...</div>
+        </div>
+        <div class="refresh-note">Auto-refreshes every 10s. Players are considered online if seen in the last 60s.</div>
+
+        <!-- Override panel -->
+        <div id="override-panel">
+            <h3>EDITING: <span id="override-name"></span></h3>
+            <div class="override-row">
+                <label>Vagueness per click</label>
+                <input type="number" id="override-vpc" placeholder="leave blank to skip" />
+            </div>
+            <div class="override-row">
+                <label>Vagueness per second</label>
+                <input type="number" id="override-vps" placeholder="leave blank to skip" />
+            </div>
+            <div class="override-row">
+                <label>Current vagueness</label>
+                <input type="number" id="override-vagueness" placeholder="leave blank to skip" />
+            </div>
+            <div class="override-actions">
+                <button onclick="sendOverride()">Apply</button>
+                <button class="secondary" onclick="closeOverride()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Broadcast message -->
+    <div class="section">
+        <div class="section-title">Send Message</div>
+        <div class="message-row">
+            <select id="message-target">
+                <option value="__all__">All players</option>
+            </select>
+            <input type="text" id="message-input" placeholder="Type your message..." maxlength="256" />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let selectedPlayer = null;
+
+    // ── Login ─────────────────────────────────────────────────
+
+    document.getElementById("passcode-input").addEventListener("keydown", e => {
+        if (e.key === "Enter") doLogin();
+    });
+
+    async function doLogin() {
+        const password = document.getElementById("passcode-input").value;
+        const res = await fetch("/api/admin/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ password })
+        });
+        if (res.ok) {
+            document.getElementById("login-screen").style.display = "none";
+            document.getElementById("admin-ui").style.display = "block";
+            loadPlayers();
+            setInterval(loadPlayers, 10000);
+        } else {
+            document.getElementById("login-error").textContent = "Wrong passcode.";
+        }
+    }
+
+    async function doLogout() {
+        await fetch("/api/admin/logout", { method: "POST" });
+        document.getElementById("admin-ui").style.display = "none";
+        document.getElementById("login-screen").style.display = "flex";
+        document.getElementById("passcode-input").value = "";
+    }
+
+    // ── Players ───────────────────────────────────────────────
+
+    function formatNumber(n) {
+        const suffixes = ["", "K", "M", "B", "T", "Qd", "Qi", "Sx", "Sp"];
+        if (n < 1000) return Math.floor(n).toString();
+        const tier = Math.floor(Math.log10(Math.abs(n)) / 3);
+        if (tier < suffixes.length) {
+            return (n / Math.pow(10, tier * 3)).toFixed(2).replace(/\.00$/, "") + suffixes[tier];
+        }
+        return n.toExponential(2);
+    }
+
+    async function loadPlayers() {
+        const res = await fetch("/api/admin/players");
+        if (!res.ok) return;
+        const players = await res.json();
+
+        const container = document.getElementById("players-container");
+        const targetSelect = document.getElementById("message-target");
+
+        // Update player count
+        document.getElementById("player-count").textContent = `(${players.length})`;
+
+        // Rebuild message target dropdown
+        targetSelect.innerHTML = `<option value="__all__">All players</option>`;
+        players.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p.factoryName;
+            opt.textContent = p.factoryName;
+            targetSelect.appendChild(opt);
+        });
+
+        if (players.length === 0) {
+            container.innerHTML = `<div class="no-players">No players online.</div>`;
+            return;
+        }
+
+        const table = document.createElement("table");
+        table.id = "players-table";
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Factory Name</th>
+                    <th>Per Click</th>
+                    <th>Per Second</th>
+                    <th>Total Vagueness</th>
+                    <th>Last Seen</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        `;
+
+        const tbody = table.querySelector("tbody");
+        players.forEach(p => {
+            const tr = document.createElement("tr");
+            const lastSeen = new Date(p.lastSeen);
+            const secondsAgo = Math.floor((Date.now() - lastSeen.getTime()) / 1000);
+            tr.innerHTML = `
+                <td>${p.factoryName}</td>
+                <td>${formatNumber(p.vaguenessPerClick)}</td>
+                <td>${formatNumber(p.vaguenessPerSecond)}</td>
+                <td>${formatNumber(p.totalVagueness)}</td>
+                <td>${secondsAgo}s ago</td>
+            `;
+            tr.addEventListener("click", () => openOverride(p));
+            tbody.appendChild(tr);
+        });
+
+        container.innerHTML = "";
+        container.appendChild(table);
+    }
+
+    // ── Override ──────────────────────────────────────────────
+
+    function openOverride(player) {
+        selectedPlayer = player;
+        document.getElementById("override-name").textContent = player.factoryName;
+        document.getElementById("override-vpc").value = "";
+        document.getElementById("override-vps").value = "";
+        document.getElementById("override-vagueness").value = "";
+        document.getElementById("override-panel").style.display = "block";
+    }
+
+    function closeOverride() {
+        selectedPlayer = null;
+        document.getElementById("override-panel").style.display = "none";
+    }
+
+    async function sendOverride() {
+        if (!selectedPlayer) return;
+        const body = { factoryName: selectedPlayer.factoryName };
+        const vpc = document.getElementById("override-vpc").value;
+        const vps = document.getElementById("override-vps").value;
+        const vagueness = document.getElementById("override-vagueness").value;
+        if (vpc) body.vaguenessPerClick = parseFloat(vpc);
+        if (vps) body.vaguenessPerSecond = parseFloat(vps);
+        if (vagueness) body.vagueness = parseFloat(vagueness);
+
+        await fetch("/api/admin/override", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body)
+        });
+        closeOverride();
+    }
+
+    // ── Message ───────────────────────────────────────────────
+
+    async function sendMessage() {
+        const target = document.getElementById("message-target").value;
+        const message = document.getElementById("message-input").value.trim();
+        if (!message) return;
+        await fetch("/api/admin/message", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ factoryName: target, message })
+        });
+        document.getElementById("message-input").value = "";
+    }
+</script>
+
+</body>
+</html>

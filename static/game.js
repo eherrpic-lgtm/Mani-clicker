@@ -244,7 +244,12 @@ async function submitScore() {
         await fetch("api/score", {
             method: "POST",
             headers: {"Content-Type": "application/json" },
-            body: JSON.stringify({factoryName, totalVagueness})
+            body: JSON.stringify({
+                factoryName, 
+                totalVagueness,
+                vaguenessPerClick,
+                vaguenessPerSecond
+            })
         });
     } catch (e) {
         console.warn("Score submit failed: ", e);
@@ -279,6 +284,39 @@ function renderLeaderboard (entries) {
         `;
         list.appendChild(li);
     })
+}
+
+// --------- Admin poll ---------------------------------
+
+async function pollAdmin() {
+    if (!factoryName) return;
+    try {
+        const res = await fetch("/api/poll", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ factoryName })
+        });
+        const data = await res.json();
+
+        if (data.message) {
+            showMilestone(`📢 ${data.message}`);
+        }
+        if (data.override_vpc !== undefined) {
+            baseVaguenessPerClick = data.override_vpc;
+            vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount) * eventClickMultiplier;
+            updateHUD()
+        }
+        if (data.override_vps !== undefined) {
+            vaguenessPerSecond = data.override_vps;
+            updateHUD();
+        }
+        if (data.override_vagueness !== undefined) {
+            vagueness = data.override_vagueness;
+            updateHUD();
+        }
+    } catch (e) {
+        console.warn("Poll failed:", e);
+    }
 }
 
 const reachedMilestones = new Set();
