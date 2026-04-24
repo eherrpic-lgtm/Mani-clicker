@@ -144,7 +144,7 @@ def admin_players():
         "lastSeen": p.last_seen.isoformat()
     } for p in players])
 
-@app.route("api/admin/message", methods = ["POST"])
+@app.route("/api/admin/message", methods = ["POST"])
 def admin_message():
     if not is_admin():
         return jsonify({"error": "Unauthorized"})
@@ -164,7 +164,7 @@ def admin_message():
     db.session.commit()
     return jsonify({"ok": True})
 
-@app.route("api/admin/override", methods = ["POST"])
+@app.route("/api/admin/override", methods = ["POST"])
 def admin_override():
     if not is_admin():
         return jsonify({"error": "Unauthorized"})
