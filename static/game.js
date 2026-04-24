@@ -626,11 +626,17 @@ function updateUpgradeButtons() {
             const buttonIcon = btn.querySelector(".btn-icon");
             costLabel.textContent = "cost";
             priceMain.textContent = formatNumber(cost);
-            btn.classList.toggle("disabled", vagueness < cost);
             if (upgradeCounts[id] > 0) {
                 buttonIcon.textContent = `x${upgradeCounts[id]}`;
             } else {
                 buttonIcon.textContent = "🔧";
+            }
+            if (btn.unlocked || vagueness >= btn.baseCost / 1.25) {
+                list.appendChild(btn);
+                u.unlocked = true;
+                localStorage.setItem("unlockedUpgrades", JSON.stringify(
+                    upgrades.filter(u => u.unlocked).map(u => u.id)
+                ))
             }
         });
     } catch (e) {
