@@ -299,7 +299,7 @@ async function pollAdmin() {
         const data = await res.json();
 
         if (data.message) {
-            showMilestone(`📢 ${data.message}`);
+            showAdminPopup(`📢 ${data.message}`);
         }
         if (data.override_vpc !== undefined) {
             baseVaguenessPerClick = data.override_vpc;
@@ -314,6 +314,7 @@ async function pollAdmin() {
             vagueness = data.override_vagueness;
             updateHUD();
         }
+        console.log("Poll succceeded")
     } catch (e) {
         console.warn("Poll failed:", e);
     }
@@ -377,6 +378,22 @@ function showMilestone(message) {
     setTimeout(() => el.remove(), 4000);
 }
 
+function showAdminPopup(message) {
+    const overlay = document.getElementById("admin-popup-overlay");
+    const text = document.getElementById("admin-popup-text");
+    
+    text.textContent = message;
+    overlay.style.display = "flex";
+    
+    // Play a sound if enabled to grab attention
+    if (typeof playRandomManiSound === "function") {
+        playRandomManiSound();
+    }
+}
+
+function closeAdminPopup() {
+    document.getElementById("admin-popup-overlay").style.display = "none";
+}
 
 const preloadedSounds = maniSounds.map(s => {
     const audio = new Audio(s.src);
@@ -708,8 +725,6 @@ function playRandomManiSound() {
 
     const randomSpeed = getRandomInt(60, 200) / 100;
 
-    console.log(randomSpeed)
-
     soundClone.playbackRate = randomSpeed;
 
     soundClone.preservePitch = false;
@@ -718,7 +733,6 @@ function playRandomManiSound() {
 
     soundClone.onended = function() {
         soundClone.remove();
-        console.log("Finished playing sound");
     };
 }
 
@@ -744,7 +758,6 @@ maniBtn.addEventListener("click", (e) => {
 setInterval(() => {
     if (Date.now()-lastClickTime > 1000) {
         longestStreak = clickStreak;
-        console.log(longestStreak)
         clickStreak = 0;
     }
 }, 100);
