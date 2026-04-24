@@ -322,7 +322,7 @@ async function pollAdmin() {
         }
         console.log("Sync & Poll succeeded");
     } catch (e) {
-        console.warn("Sync & Poll failed:", e);
+        console.error("Sync & Poll failed:", e);
     }
 }
 
