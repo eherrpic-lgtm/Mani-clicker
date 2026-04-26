@@ -817,7 +817,7 @@ maniBtn.addEventListener("click", (e) => {
     const now = Date.now();
     lastClickTime = now;
     timeSinceLastClick = 0;
-    const clickVagueness;
+    const clickVagueness = 0;
     
     clickStreak++;
 
