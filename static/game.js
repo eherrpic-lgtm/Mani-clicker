@@ -731,6 +731,11 @@ function updateUpgradeButtons() {
             } else {
                 buttonIcon.textContent = "🔧";
             }
+            if (vagueness >= upgradeCosts[u.id]) {
+                btn.style.opacity = 1;
+            } else {
+                btn.style.opacity = 0.4;
+            }
         });
     } catch (e) {
         console.error("Error updating upgrade buttons:", e);
