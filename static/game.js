@@ -308,7 +308,7 @@ function updatePrestigeUI(){
     const nextMultiplier = getPrestigeMultiplier(prestigeCount + 1);
     info.textContent = prestigeCount === 0 
         ? `Prestige at 1B total vagueness - next bonus: x${nextMultiplier.toFixed(2)}`
-        : `Prestige #${upgardeCount} - multiplier: x${prestigeMultiplier.toFixed(2)} - next: x${nextMultiplier.toFixed(2)}`;
+        : `Prestige #${upgradeCount} - multiplier: x${prestigeMultiplier.toFixed(2)} - next: x${nextMultiplier.toFixed(2)}`;
 }
 
 // -- Leaderboard ---------------------------------------------------
