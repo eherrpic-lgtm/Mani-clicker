@@ -263,6 +263,7 @@ function prestige() {
 
     vagueness = 0;
     baseVaguenessPerClick = 1;
+    vaguenessPerClick = 1;
     vaguenessPerSecond = 0;
     percentUpgradeCount = 0;
     eventClickMultiplier = 1;
