@@ -14,6 +14,8 @@ let lastClickTime = 0;
 let clickStreak = 0;
 let longestStreak = 0;
 let factoryName = localStorage.getItem("factoryName") || "";
+let prestigeCount = 0;
+let prestigeMultiplier = 1; 
 
 const vaguenessDisplay = document.getElementById("vagueness-count");
 const perClickDisplay = document.getElementById("vpc");
@@ -236,6 +238,78 @@ function renameFactory() {
     }
 }
 
+function getPrestigeMultiplier(count) {
+    const steps = [1,1.1, 1.35, 1.85, 2.85, 4.85];
+    if (count >= steps.length) {
+        return steps[steps.length - 1] + (count - (steps.length - 1)) * 2;
+    }
+    return steps[count];
+}
+
+function prestige() {
+    if (totalVagueness < 1e9) {
+        showMilestone("Not enough vageness to prestige. Keep going.");
+        return;
+    }
+
+    const nextMultiplier = getPrestigeMultiplier(prestigeCount + 1);
+    const confirmed = confirm(
+        `Prestige #${prestigeCount + 1}\n\nAll progress will be reset.\nYour new permanent multiplier: x${nextMultiplier.toFixed(2)} on all production. \n\nAre you sure?`
+    );
+    if (!confirmed) return;
+
+    prestigeCount ++;
+    prestigeMultiplier = getPrestigeMultiplier(prestigeCount);
+
+    vagueness = 0;
+    baseVaguenessPerClick = 1;
+    vaguenessPerSecond = 0;
+    percentUpgradeCount = 0;
+    eventClickMultiplier = 1;
+    eventSecondMultiplier = 1;
+    clickStreak = 0;
+    reachedMilestones.clear();
+
+    upgrades.forEach(u => {
+        upgradeCounts[u.id] = 0;
+        upgradeCosts[u.id] = u.baseCost;
+        u.unlocked = u.id === "u1";
+    });
+
+    const prestigeData = {
+        prestigeCount,
+        prestigeMultiplier,
+        totalVagueness,
+        factoryName
+    };
+
+    localStorage.clear();
+    localStorage.setItem("prestigeCount", prestigeCount);
+    localStorage.setItem("prestigeMultiplier", prestigeMultiplier);
+    localStorage.setItem("totalVagueness", totalVagueness);
+    localStorage.setItem("factoryName", factoryName);
+
+    updateHUD();
+    renderUpgrades();
+    updatePrestigeUI();
+    showMilestone(`Prestige #${prestigeCount} achieved. Multiplier: x${prestigeMultiplier.toFixed(2)}`);
+}
+
+function updatePrestigeUI(){
+    const btn = document.getElementById("prestige-btn");
+    const info = document.getElementById("prestige-info");
+    if (!btn || !info) return;
+
+    const canPrestige = totalVagueness >= 1e9;
+    btn.style.opacity = canPrestige ? "1" : "0.4";
+    btn.style.cursor = canPrestige ? "pointer" : "not-allowed";
+
+    const nextMultiplier = getPrestigeMultiplier(prestigeCount + 1);
+    info.textContent = prestigeCount === 0 
+        ? `Prestige at 1B total vagueness - next bonus: x${nextMultiplier.toFixed(2)}`
+        : `Prestige #${upgardeCount} - multiplier: x${prestigeMultiplier.toFixed(2)} - next: x${nextMultiplier.toFixed(2)}`;
+}
+
 // -- Leaderboard ---------------------------------------------------
 
 async function submitScore() {
@@ -308,7 +382,7 @@ async function pollAdmin() {
         }
         if (data.override_vpc !== undefined) {
             baseVaguenessPerClick = data.override_vpc;
-            vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount) * eventClickMultiplier;
+            vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount) * eventClickMultiplier * prestigeMultiplier;
             updateHUD();
         }
         if (data.override_vps !== undefined) {
@@ -470,7 +544,7 @@ function load() {
     vaguenessPerSecond = parseFloat(localStorage.getItem("vaguenessPerSecond")) || 0;
     const savedCounts = JSON.parse(localStorage.getItem("upgradeCounts") || "{}");
     const savedCosts = JSON.parse(localStorage.getItem("upgradeCosts") || "{}");
-    vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount) * eventClickMultiplier;
+    vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount) * eventClickMultiplier * prestigeMultiplier;
     soundsEnabled = localStorage.getItem("soundsEnabled") === "false" ? false : true;
     soundToggle.classList.toggle("on", soundsEnabled);
     upgrades.forEach(u => {
@@ -497,6 +571,8 @@ function load() {
     }
     
     totalVagueness = parseFloat(localStorage.getItem("totalVagueness")) || 0;
+    prestigeCount = parseInt(localStorage.getItem("prestigeCount")) || 0;
+    prestigeMultiplier = parseInt(localStorage.getItem("prestigeMultiplier")) || 1;
     updateHUD();
 }
 
@@ -525,7 +601,7 @@ document.getElementById("percentUpgrade").addEventListener("click", () => {
     const cost = getPercentUpgradeCost();
     if (vagueness >= cost) {
         vagueness -= cost;
-        vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount) * eventClickMultiplier;
+        vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount) * eventClickMultiplier * prestigeMultiplier;
         percentUpgradeCount++;
         updateHUD();
         updateUpgradeButtons();
@@ -620,7 +696,7 @@ function renderUpgrades() {
             vagueness -= currentCost;
             const upgradeCount = percentUpgradeCount;
             u.effect();
-            vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount) * eventClickMultiplier;
+            vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount) * eventClickMultiplier * prestigeMultiplier;
             upgradeCounts[u.id]++;
             upgradeCosts[u.id] = Math.floor(u.baseCost * Math.pow(1.15, upgradeCounts[u.id]));
             updateHUD();
@@ -674,6 +750,7 @@ function updateHUD() {
     totalVaguenessDisplay.textContent = formatNumber(totalVagueness);
     localStorage.setItem("lastSeen", Date.now());
     updatePercentUpgradeUI();
+    updatePrestigeUI();
 }
 
 function saveGame() {
@@ -709,8 +786,8 @@ setInterval(() => {
     const elapsed = now - lastTick;
     lastTick = now;
 
-    vagueness += (vaguenessPerSecond * eventSecondMultiplier * elapsed/1000)
-    totalVagueness += (vaguenessPerSecond * eventSecondMultiplier * elapsed/1000);
+    vagueness += (vaguenessPerSecond * eventSecondMultiplier * prestigeMultiplier * elapsed/1000)
+    totalVagueness += (vaguenessPerSecond * eventSecondMultiplier * prestigeMultiplier * elapsed/1000);
     checkMilestones();
     updateHUD();
 }, 1000);
@@ -769,7 +846,6 @@ setInterval(() => {
 }, 100);
 
 function spawnFloatingText(text, fontsize, e, position, weight, spin) {
-
     const el = document.createElement("div");
     el.textContent = text;
     el.style.cssText = `

@@ -452,6 +452,37 @@ h1 {
     background: #1a2e10;
 }
 
+#prestige-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+#prestige-info {
+    font-size: 11px;
+    color: #888680;
+    letter-spacing: 0.06em;
+    text-align: center;
+}
+
+#prestige-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #D4ECC0;
+    background: #2D4A1E;
+    border: 1px solid #3d6428;
+    padding: 8px 20px;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+    opacity: 0.4;
+}
+
+#prestige-btn:hover { background: #3d6428; }
+
 @keyframes fadeInOut {
     0%   { opacity: 0; transform: translateX(-50%) translateY(10px); }
     15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
