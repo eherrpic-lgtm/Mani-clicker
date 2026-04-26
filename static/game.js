@@ -801,20 +801,13 @@ function getRandomInt(min, max) {
 
 function playRandomManiSound() {
     if (!soundsEnabled) return;
-
     const randomIndex = getRandomInt(0, preloadedSounds.length - 1);
     const originalSound = preloadedSounds[randomIndex];
-
     const soundClone = originalSound.cloneNode();
-
     const randomSpeed = getRandomInt(60, 200) / 100;
-
     soundClone.playbackRate = randomSpeed;
-
     soundClone.preservePitch = false;
-
     soundClone.play().catch(err => console.error("Playback failed: ", err));
-
     soundClone.onended = function() {
         soundClone.remove();
     };
@@ -824,12 +817,17 @@ maniBtn.addEventListener("click", (e) => {
     const now = Date.now();
     lastClickTime = now;
     timeSinceLastClick = 0;
+    const clickVagueness;
     
     clickStreak++;
 
-    const clickVagueness = vaguenessPerClick * (1 + (clickStreak > 150 ? 150 : clickStreak) / 100)
+    if (clickStreak > 150) {
+        clickVagueness = vaguenessPerClick * (1 + 1.5) * prestigeMultiplier;
+    } else {
+        clickVagueness = vaguenessPerClick * (1 + (clickStreak / 100)) * prestigeMultiplier;
+    }
     vagueness += clickVagueness;
-    totalVagueness += vaguenessPerClick;
+    totalVagueness += clickVagueness;
     playRandomManiSound();
     spawnFloatingText(`+${formatNumber(clickVagueness)}`, 13, e, "top", 500, false);
     if (clickStreak > 1) {
