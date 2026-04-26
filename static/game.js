@@ -308,7 +308,7 @@ function updatePrestigeUI(){
     const nextMultiplier = getPrestigeMultiplier(prestigeCount + 1);
     info.textContent = prestigeCount === 0 
         ? `Prestige at 1B total vagueness - next bonus: x${nextMultiplier.toFixed(2)}`
-        : `Prestige #${upgradeCount} - multiplier: x${prestigeMultiplier.toFixed(2)} - next: x${nextMultiplier.toFixed(2)}`;
+        : `Prestige #${prestigeCount} - multiplier: x${prestigeMultiplier.toFixed(2)} - next: x${nextMultiplier.toFixed(2)}`;
 }
 
 // -- Leaderboard ---------------------------------------------------
@@ -316,7 +316,7 @@ function updatePrestigeUI(){
 async function submitScore() {
     if (!factoryName) return;
     try {
-        await fetch("api/score", {
+        await fetch("/api/score", {
             method: "POST",
             headers: {"Content-Type": "application/json" },
             body: JSON.stringify({
@@ -543,6 +543,8 @@ function load() {
     vagueness = parseFloat(localStorage.getItem("vagueness")) || 0;
     baseVaguenessPerClick = parseFloat(localStorage.getItem("baseVaguenessPerClick")) || 1;
     vaguenessPerSecond = parseFloat(localStorage.getItem("vaguenessPerSecond")) || 0;
+    prestigeCount = parseInt(localStorage.getItem("prestigeCount")) || 0;
+    prestigeMultiplier = parseFloat(localStorage.getItem("prestigeMultiplier")) || 1;
     const savedCounts = JSON.parse(localStorage.getItem("upgradeCounts") || "{}");
     const savedCosts = JSON.parse(localStorage.getItem("upgradeCosts") || "{}");
     vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount) * eventClickMultiplier * prestigeMultiplier;
@@ -556,11 +558,11 @@ function load() {
     savedUnlocked.forEach(id => {
         const u = upgrades.find(u => u.id === id);
         if (u) u.unlocked = true;
-    })
+    });
     percentUpgradeCount = parseInt(localStorage.getItem("percentUpgradeCount")) || 0;
     const savedMilestones = JSON.parse(localStorage.getItem("reachedMilestones") || "[]");
     savedMilestones.forEach(t => reachedMilestones.add(t));
-    
+
     const lastSeen = parseInt(localStorage.getItem("lastSeen")) || null;
     if (lastSeen) {
         const secondsAway = Math.floor((Date.now() - lastSeen) / 1000);
@@ -570,10 +572,8 @@ function load() {
             alert(`Welcome back! You were away for ${formatTime(secondsAway)} and earned ${formatNumber(earned)} vagueness.`);
         }
     }
-    
+
     totalVagueness = parseFloat(localStorage.getItem("totalVagueness")) || 0;
-    prestigeCount = parseInt(localStorage.getItem("prestigeCount")) || 0;
-    prestigeMultiplier = parseInt(localStorage.getItem("prestigeMultiplier")) || 1;
     updateHUD();
 }
 
@@ -731,13 +731,6 @@ function updateUpgradeButtons() {
             } else {
                 buttonIcon.textContent = "🔧";
             }
-            if (btn.unlocked || vagueness >= btn.baseCost / 1.25) {
-                list.appendChild(btn);
-                u.unlocked = true;
-                localStorage.setItem("unlockedUpgrades", JSON.stringify(
-                    upgrades.filter(u => u.unlocked).map(u => u.id)
-                ))
-            }
         });
     } catch (e) {
         console.error("Error updating upgrade buttons:", e);
@@ -817,14 +810,14 @@ maniBtn.addEventListener("click", (e) => {
     const now = Date.now();
     lastClickTime = now;
     timeSinceLastClick = 0;
-    const clickVagueness = 0;
+    let clickVagueness;
     
     clickStreak++;
 
     if (clickStreak > 150) {
-        clickVagueness = vaguenessPerClick * (1 + 1.5) * prestigeMultiplier;
+        clickVagueness = vaguenessPerClick * (1 + 1.5);
     } else {
-        clickVagueness = vaguenessPerClick * (1 + (clickStreak / 100)) * prestigeMultiplier;
+        clickVagueness = vaguenessPerClick * (1 + (clickStreak / 100));
     }
     vagueness += clickVagueness;
     totalVagueness += clickVagueness;
