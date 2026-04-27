@@ -426,15 +426,87 @@ function scheduleNextEvent() {
 }
 scheduleNextEvent();
 
-function checkMilestones() {
-    milestones.forEach(m => {
-        if (vagueness >= m.threshold && !reachedMilestones.has(m.threshold)) {
-            reachedMilestones.add(m.threshold);
-            localStorage.setItem("reachedMilestones", JSON.stringify([...reachedMilestones]));
-            showMilestone(m.message);
+function updateUpgradeButtons() {
+    const list = document.getElementById("upgrade-list");
+
+    // Update existing buttons in place
+    document.querySelectorAll(".upgrade-btn").forEach(btn => {
+        const id = btn.dataset.id;
+        const upgrade = upgrades.find(u => u.id === id);
+        if (!upgrade) return;
+
+        const cost = Math.floor(upgradeCosts[id]);
+        btn.querySelector(".price-label").textContent = formatNumber(cost);
+
+        const icon = btn.querySelector(".btn-icon");
+        icon.textContent = upgradeCounts[id] > 0 ? `x${upgradeCounts[id]}` : "🔧";
+
+        btn.style.opacity = vagueness >= cost ? "1" : "0.4";
+    });
+
+    // Check if any locked upgrades should now be revealed
+    upgrades.forEach(u => {
+        if (u.unlocked) return; // already in the DOM
+        if (vagueness >= u.baseCost / 1.25) {
+            u.unlocked = true;
+            localStorage.setItem("unlockedUpgrades", JSON.stringify(
+                upgrades.filter(u => u.unlocked).map(u => u.id)
+            ));
+
+            // Build and append the new button exactly as renderUpgrades does
+            const cost = Math.floor(upgradeCosts[u.id]);
+            const btn = document.createElement("button");
+            btn.className = "upgrade-btn";
+            btn.dataset.id = u.id;
+
+            const leftDiv = document.createElement("div");
+            leftDiv.classList.add("btn-left");
+            const buttonIcon = document.createElement("div");
+            buttonIcon.classList.add("btn-icon");
+            buttonIcon.textContent = upgradeCounts[u.id] > 0 ? `x${upgradeCounts[u.id]}` : "🔧";
+            const btnText = document.createElement("div");
+            btnText.classList.add("btn-text");
+            const btnTitle = document.createElement("div");
+            btnTitle.classList.add("btn-title");
+            btnTitle.textContent = u.label;
+            const btnBenefit = document.createElement("div");
+            btnBenefit.classList.add("btn-benefit");
+            btnBenefit.textContent = u.benefit;
+            const btnPrice = document.createElement("div");
+            btnPrice.classList.add("btn-price");
+            const costLabel = document.createElement("div");
+            costLabel.classList.add("cost-label");
+            costLabel.textContent = "cost";
+            const priceMain = document.createElement("div");
+            priceMain.classList.add("price-label");
+            priceMain.textContent = formatNumber(cost);
+
+            btnPrice.appendChild(costLabel);
+            btnPrice.appendChild(priceMain);
+            leftDiv.appendChild(buttonIcon);
+            leftDiv.appendChild(btnText);
+            btnText.appendChild(btnTitle);
+            btnText.appendChild(btnBenefit);
+            btn.appendChild(leftDiv);
+            btn.appendChild(btnPrice);
+
+            btn.style.opacity = vagueness >= cost ? "1" : "0.4";
+
+            btn.addEventListener("click", () => {
+                const currentCost = Math.floor(upgradeCosts[u.id]);
+                if (vagueness < currentCost) return;
+                vagueness -= currentCost;
+                u.effect();
+                vaguenessPerClick = baseVaguenessPerClick * Math.pow(1.01, percentUpgradeCount) * eventClickMultiplier * prestigeMultiplier;
+                upgradeCounts[u.id]++;
+                upgradeCosts[u.id] = Math.floor(u.baseCost * Math.pow(1.15, upgradeCounts[u.id]));
+                updateHUD();
+                updateUpgradeButtons();
+            });
+
+            list.appendChild(btn);
         }
     });
-    updateUpgradeButtons();
 }
 
 function showMilestone(message) {
@@ -751,7 +823,6 @@ function updateHUD() {
     localStorage.setItem("lastSeen", Date.now());
     updatePercentUpgradeUI();
     updateUpgradeButtons();
-    renderUpgrades();
     updatePrestigeUI();
 }
 
