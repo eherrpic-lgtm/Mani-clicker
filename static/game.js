@@ -751,6 +751,7 @@ function updateHUD() {
     localStorage.setItem("lastSeen", Date.now());
     updatePercentUpgradeUI();
     updateUpgradeButtons();
+    renderUpgrades();
     updatePrestigeUI();
 }
 
