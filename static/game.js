@@ -16,6 +16,7 @@ let longestStreak = 0;
 let factoryName = localStorage.getItem("factoryName") || "";
 let prestigeCount = 0;
 let prestigeMultiplier = 1; 
+let totalVaguenessSinceLastPrestige = 0;
 
 const vaguenessDisplay = document.getElementById("vagueness-count");
 const perClickDisplay = document.getElementById("vpc");
@@ -247,7 +248,7 @@ function getPrestigeMultiplier(count) {
 }
 
 function prestige() {
-    if (totalVagueness < 1e9) {
+    if (vagueness < 1e9) {
         showMilestone("Not enough vageness to prestige. Keep going.");
         return;
     }
