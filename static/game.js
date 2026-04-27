@@ -750,6 +750,7 @@ function updateHUD() {
     totalVaguenessDisplay.textContent = formatNumber(totalVagueness);
     localStorage.setItem("lastSeen", Date.now());
     updatePercentUpgradeUI();
+    updateUpgradeButtons();
     updatePrestigeUI();
 }
 
