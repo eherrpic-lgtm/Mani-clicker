@@ -731,7 +731,7 @@ function updateUpgradeButtons() {
             } else {
                 buttonIcon.textContent = "🔧";
             }
-            if (vagueness >= upgradeCosts[u.id]) {
+            if (vagueness >= upgradeCosts[id]) {
                 btn.style.opacity = 1;
             } else {
                 btn.style.opacity = 0.4;
