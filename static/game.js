@@ -426,6 +426,17 @@ function scheduleNextEvent() {
 }
 scheduleNextEvent();
 
+function checkMilestones() {
+    milestones.forEach(m => {
+        if (vagueness >= m.threshold && !reachedMilestones.has(m.threshold)) {
+            reachedMilestones.add(m.threshold);
+            localStorage.setItem("reachedMilestones", JSON.stringify([...reachedMilestones]));
+            showMilestone(m.message);
+        }
+    });
+    updateUpgradeButtons();
+}
+
 function updateUpgradeButtons() {
     const list = document.getElementById("upgrade-list");
 
