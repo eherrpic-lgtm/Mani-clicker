@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang = "en">
+<html lang="en">
     <head>
-        <meta charset = "UTF-8" />
-        <title>Mani clicker</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename = 'style.css')}}">
+        <meta charset="UTF-8" />
+        <title>Mani Clicker</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
         <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
         <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
         <script defer src="https://cloud.umami.is/script.js" data-website-id="81b745ae-393c-4def-aec7-92dd7d82d371"></script>
+        <link rel="preload" href="{{ url_for('static', filename='mani.jpg') }}" as="image">
+        <link rel="preload" href="{{ url_for('static', filename='style.css') }}" as="style">
     </head>
     <body>
         <div id="admin-popup-overlay">
@@ -16,61 +18,60 @@
                 <button id="admin-popup-close-btn" onclick="closeAdminPopup()">Acknowledge</button>
             </div>
         </div>
-        <div id = "left-panel">
-            <div id = "titles">
+        <div id="left-panel">
+            <div id="titles">
                 <h1>Mani Clicker</h1>
-                <h2 id = "enterprise-edition">ENTERPRISE EDITION V2.0</h2>
+                <h2 id="enterprise-edition">ENTERPRISE EDITION V2.0</h2>
             </div>
-            <div id = "hud">
-                <div id = "factory-name-row">
-                    <span id = "factory-name"></span>
-                    <button id = "rename-btn" onclick = "renameFactory()">rename</button>
+            <div id="hud">
+                <div id="factory-name-row">
+                    <span id="factory-name"></span>
+                    <button id="rename-btn">rename</button>
                 </div>
-                <p>Vagueness: <span id = "vagueness-count">0</span></p>
-                <p>Vagueness per click: <span id = "vpc">1</span></p>
-
-                <p>Total vagueness: <span id = "total-vagueness">0</span></p>
+                <p>Vagueness: <span id="vagueness-count">0</span></p>
+                <p>Vagueness per click: <span id="vpc">1</span></p>
+                <p>Vagueness per second: <span id="vps">0</span></p>
+                <p>Total vagueness: <span id="total-vagueness">0</span></p>
             </div>
             <div id="prestige-panel">
                 <div id="prestige-info">Prestige at 1B total vagueness</div>
-                <button id="prestige-btn" onclick="prestige()">✦ PRESTIGE</button>
+                <button id="prestige-btn">✦ PRESTIGE</button>
             </div>
-            <div id = "tickerBox"></div>
-            <div id = "clicker-area">
-            <img id="mani" src="{{ url_for('static', filename = 'mani.jpg')}}" alt = "Mani" />
+            <div id="tickerBox"></div>
+            <div id="clicker-area">
+                <img id="mani" src="{{ url_for('static', filename='mani.jpg') }}" alt="Mani" />
             </div>
-            <button id = "reset-button">Reset Game</button>
+            <button id="reset-button">Reset Game</button>
             <div id="sound-toggle-row">
                 <span id="sound-toggle-label">Sounds</span>
                 <div id="sound-toggle" class="toggle-track">
                     <div class="toggle-thumb"></div>
                 </div>
             </div>
-            <div id = "leaderboard-panel">
-                <div class = "lb-title">VAGUENESS LEADERBOARD</div>
-                <ul id = "leaderboard-list"></ul>
+            <div id="leaderboard-panel">
+                <div class="lb-title">VAGUENESS LEADERBOARD</div>
+                <ul id="leaderboard-list"></ul>
             </div>
         </div>
-        <div id = "shop">
-            <div id = "shop-titles">
-                <h2 id = "shop-title">Shop</h2>
-                <h3 id = "shop-subtitle">PROCUREMENT PORTAL</h3>
+        <div id="shop">
+            <div id="shop-titles">
+                <h2 id="shop-title">Shop</h2>
+                <h3 id="shop-subtitle">PROCUREMENT PORTAL</h3>
             </div>
-            <div id = "percentUpgrade" class = "upgrade-btn">
-                <div class = "btn-left">
-                    <div class = "btn-text">
-                        <div id = "percentUpgradeLabel" class = "btn-title">+1% vagueness/click</div>
-                        <div class = "btn-subtitle">Multiplier - stackable</div>
+            <div id="percentUpgrade" class="upgrade-btn">
+                <div class="btn-left">
+                    <div class="btn-text">
+                        <div id="percentUpgradeLabel" class="btn-title">+1% vagueness/click</div>
+                        <div class="btn-subtitle">Multiplier - stackable</div>
                     </div>
-                </div>          
-                <div class = "btn-price">
-                    <div class = "cost-label">cost</div>
-                    <div id = "percentUpgradeCost" class = "price-label">5,000</div>
+                </div>
+                <div class="btn-price">
+                    <div class="cost-label">cost</div>
+                    <div id="percentUpgradeCost" class="price-label">5,000</div>
                 </div>
             </div>
-            <div id = "upgrade-list">
-            </div>
+            <div id="upgrade-list"></div>
         </div>
-        <script src="{{ url_for('static', filename = 'game.js')}}"></script>
+        <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
     </body>
 </html>
